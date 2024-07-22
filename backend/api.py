@@ -3,6 +3,7 @@ import string
 import jsonify
 from provableFairMines import ProvablyFairGameMines
 from provableFairPlinko import ProvablyFairGamePlinko
+from provableFairUpgrade import ProvablyFairGameUpgrade
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 
@@ -139,7 +140,30 @@ def dropBall():
 
 @app.route('/playGame/upgrade/makeUpgrade', methods=['POST'])
 def makeUpgrade():
-    return "pass"
+    try:
+        userName = request.json['userName']
+        authenticationToken = request.json['authenticationToken']
+        betAmount = request.json['betAmount']
+        targetValue = request.json['targetValue']
+
+
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticationToken)
+
+        if targetValue > betAmount and verificationCheck:
+            if user.updateUserObjectWithSeedInputs():
+                game = ProvablyFairGameUpgrade(user.userId, user.serverSeed, user.clientSeed, user.nonce, betAmount)
+                game.generateNewGame(targetValue)
+                return jsonify({
+                    'success': True,
+                    'rotationAngle': game.rotationAngle,
+                    'gameOutCome': game.gameOutcome,})
+
+        return jsonify({'success': False})
+
+    except Exception as e:
+        return jsonify({'success': False,
+                        'message': str(e)})
 
 ########################################################
 

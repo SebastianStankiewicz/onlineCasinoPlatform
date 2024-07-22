@@ -26,6 +26,3 @@ class ProvablyFairGameUpgrade(ProvablyFairGame):
             self.rotationAngle = winPercentage + (random.random() * (360 - winPercentage));
             self.gameOutcome = "lost"
 
-test = ProvablyFairGameUpgrade(5, "nice", "nice", 11, 23)
-test.generateNewGame(26)
-print(f'Game outcome: {test.gameOutcome} Game hash: {test.getGameHash()}')
