@@ -14,9 +14,11 @@ class User:
     def __init__(self):
         self.userName = None
         self.password = None
+        self.userId = None
         self.authenticationToken = None
         self.clientSeed = None
         self.nonce = None
+        self.serverSeed = None
 
     """Both create user and login return a authentication token"""
     def createUser(self, userName: str, password: str) -> bool:
@@ -66,6 +68,41 @@ class User:
         1. Compare to db
         2. If valid pair then generate and return auth token
         """
+
+    def authenticateUser(self, userName: str, authenticationToken: str) -> str:
+        db = getDataBase()
+        cursor = db.cursor()
+        cursor.execute('SELECT userId FROM users WHERE username = ? AND authenticationToken = ?', (userName, authenticationToken))
+        user = cursor.fetchone()
+
+        if user is None:
+            return False
+        else:
+            self.userName = userName
+            self.authenticationToken = authenticationToken
+            return True
+        
+    def updateUserObjectWithSeedInputs(self) -> bool:
+        """This is called for example in drop ball method
+        Used to populate the user object with data.
+        -Assumes that user already authenticated/ authenticationUser called previousley
+        """
+        db = getDataBase()
+        cursor = db.cursor()
+        cursor.execute('SELECT * FROM users WHERE username = ? AND authenticationToken = ?', (self.userName, self.authenticationToken))
+        user = cursor.fetchone()
+
+        if user is None:
+            return False
+        else:
+            self.userId = user["userId"]
+            self.serverSeed = user["serverSeed"]
+            self.clientSeed = user["clientSeed"]
+            self.serverSeed = user["serverSeed"]
+            self.nonce = user["nonce"]
+            return True
+
+
       
 
     def revealServerSeed(self, userName: str, authenticationToken: str) -> str:

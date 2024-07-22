@@ -2,6 +2,7 @@ import random
 import string
 import jsonify
 from provableFairMines import ProvablyFairGameMines
+from provableFairPlinko import ProvablyFairGamePlinko
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 
@@ -107,8 +108,33 @@ def getActiveMinesGame():
 
 @app.route('/playGame/plinko/dropBall', methods=['POST'])
 def dropBall():
-    return "pass"
+    try:
+        #TODO Authentice and add wallet balance check
+        userName = request.json['userName']
+        authenticationToken = request.json['authenticationToken']
+        betAmount = request.json['betAmount']
 
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticationToken)
+
+        if verificationCheck:
+            if user.updateUserObjectWithSeedInputs():
+                game = ProvablyFairGamePlinko(user.userId, user.serverSeed, user.clientSeed, user.nonce, betAmount)
+                game.generateBall()
+                return jsonify({
+                    'success': True,
+                    'path': game.path,
+                    'dropLocation': game.dropLocation,
+                    'multiplier': game.multiplier})
+            
+
+
+        return jsonify({'success': False,
+                        'message': str(e)})
+
+    except Exception as e:
+        return jsonify({'success': False,
+                        'message': str(e)})
 ########################################################
 
 @app.route('/playGame/upgrade/makeUpgrade', methods=['POST'])

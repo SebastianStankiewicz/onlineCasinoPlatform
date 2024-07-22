@@ -34,16 +34,5 @@ class ProvablyFairGamePlinko(ProvablyFairGame):
         self.index = sum(self.path)
         self.multiplier = self.multipliers[self.index + 8]
         self.dropLocation = self.getRandomDropLocation(self.jsonFile, str(self.multiplier))
-        return f"{self.multiplier}: {self.getGameHash()}"
+
     
-
-userid = "test2"
-serverSeed = "seeeed"
-clientSeed = "I can be anythinig and set by the player"
-nonce = 0
-
-
-
-
-test = ProvablyFairGamePlinko(userid, serverSeed, clientSeed, nonce, 10)
-print(test.generateBall())
