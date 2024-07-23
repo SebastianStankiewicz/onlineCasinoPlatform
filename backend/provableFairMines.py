@@ -1,6 +1,6 @@
 import random
 from provablyFair import ProvablyFairGame
-
+import os
 
 
 
@@ -11,10 +11,11 @@ class ProvablyFairGameMines(ProvablyFairGame):
         self.mineLocations = []
         self.multiplier = None
         self.gameInProgress = True
+        self.gameId = None
         super().__init__(userId, serverSeed, clientSeed, nonce, betAmount)
 
     def generateNewGame(self, numberOfMines:int) -> None:
-        random.seed(self.gameSeed)        
+        random.seed(self.gameSeed)       
         self.mineLocations = random.sample(range(1, 25), numberOfMines)
     
     #When a game is in progress and can call this function

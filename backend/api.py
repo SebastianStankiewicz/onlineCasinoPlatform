@@ -82,15 +82,27 @@ def loginAPI():
 
 @app.route('/playGame/mines/create', methods=['POST'])
 def createMinesGame():
-    #If the user return "passes" authentication and got no other active game then:
+    try:
+        userName = request.json['userName']
+        authenticationToken = request.json['authenticationToken']
+        betAmount = request.json['betAmount']
+        numberOfMines = request.json["numberOfMines"]
 
-    #User passes in the client seed NOT from the db
-    #User passes in bet amount and number of mines
-
-    #Need to fetch the users nonce, server seed 
-    game = ProvablyFairGameMines("serverSeed", "clientSeed", 0)
-    game.generateNewGame(5)
-    return "pass"
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticationToken)
+        
+        if verificationCheck:
+            if user.updateUserObjectWithSeedInputs():
+                game = ProvablyFairGameMines(user.userId, user.serverSeed, user.clientSeed, user.nonce, betAmount)
+                game.generateNewGame(numberOfMines)
+                if game.saveToGamesTable():
+                    return jsonify({'success': True})
+                else:
+                    return jsonify({'success': False})
+    
+    except Exception as e:
+        return jsonify({'success': False,
+                        'message': str(e)})
 
 @app.route('/playGame/mines/clickTile', methods=['POST'])
 def clickTile():
@@ -128,8 +140,6 @@ def dropBall():
                     'dropLocation': game.dropLocation,
                     'multiplier': game.multiplier})
             
-
-
         return jsonify({'success': False,
                         'message': str(e)})
 
