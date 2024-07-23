@@ -123,6 +123,24 @@ class User:
         db.commit()
         
         return oldServerSeed 
+    
+    def incrementNonce(self) -> None:
+        db = getDataBase()
+        cursor = db.cursor()
+        cursor.execute('SELECT nonce FROM users WHERE username = ? AND authenticationToken = ?', (self.userName, self.authenticationToken))
+        user = cursor.fetchone()
+
+        if user is None:
+            return False
+        
+        else:
+            self.nonce = user["nonce"]
+            cursor.execute('UPDATE users SET nonce = ? WHERE userId = ?', (self.nonce+1, self.userId))
+            db.commit()
+            db.close()
+            return True
+
+
 
 
 def generateToken(length:int) -> str:

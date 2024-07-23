@@ -96,9 +96,9 @@ def createMinesGame():
                 game = ProvablyFairGameMines(user.userId, user.serverSeed, user.clientSeed, user.nonce, betAmount)
                 game.generateNewGame(numberOfMines)
                 if game.saveToGamesTable():
-                    return jsonify({'success': True})
-                else:
-                    return jsonify({'success': False})
+                    if user.incrementNonce():
+                        return jsonify({'success': True})
+        return jsonify({'success': False})
     
     except Exception as e:
         return jsonify({'success': False,

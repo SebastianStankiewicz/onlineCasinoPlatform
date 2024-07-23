@@ -26,7 +26,7 @@ def sha512Hash(data):
 class ProvablyFairGame:
     def __init__(self, userId: int, serverSeed: str, clientSeed: str, nonce: int, betAmount: int):
         self.userId = userId
-        #self.gameId = os.urandom(10).hex() #Shouldnt be made in the object!! create and pass in to db not needed with objet at all
+        self.gameId = os.urandom(10).hex() #Shouldnt be made in the object!! create and pass in to db not needed with objet at all
         self.betAmount = betAmount
         self.serverSeed = serverSeed #Both 40 in length
         self.clientSeed = clientSeed
@@ -46,12 +46,13 @@ class ProvablyFairGame:
         try:
             db = getDataBase()
             cursor = db.cursor()
-            cursor.execute('INSERT INTO games (uniqueUserId, gameType, betAmount, serverSeed, clientSeed, nonce, hashedGameSeed ) VALUES (?, ?, ?, ?, ?, ?, ?)', 
-                        (self.userId, self.gameType, self.betAmount, self.serverSeed, self.clientSeed, self.nonce, self.hashedGameSeed ))
+            cursor.execute('INSERT INTO games (uniqueUserId, gameType, betAmount, serverSeed, clientSeed, nonce, hashedGameSeed, uniqueGameId ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+                        (self.userId, self.gameType, self.betAmount, self.serverSeed, self.clientSeed, self.nonce, self.hashedGameSeed, self.gameId ))
             db.commit()
             db.close()
             return True
         except Exception as e:
+            print(str(e))
             return False
 
 

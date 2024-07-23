@@ -1,5 +1,6 @@
 import random
-from provablyFair import ProvablyFairGame
+import json
+from provablyFair import ProvablyFairGame, getDataBase
 import os
 
 
@@ -11,12 +12,12 @@ class ProvablyFairGameMines(ProvablyFairGame):
         self.mineLocations = []
         self.multiplier = None
         self.gameInProgress = True
-        self.gameId = None
         super().__init__(userId, serverSeed, clientSeed, nonce, betAmount)
 
     def generateNewGame(self, numberOfMines:int) -> None:
         random.seed(self.gameSeed)       
         self.mineLocations = random.sample(range(1, 25), numberOfMines)
+        self.calculateMultiplier()
     
     #When a game is in progress and can call this function
     def setGameData(self, revealedTiles, mineLocations):
@@ -46,8 +47,23 @@ class ProvablyFairGameMines(ProvablyFairGame):
                 self.revealedTiles.append(tileLocation) 
                 self.calculateMultiplier()
 
+    #@overide
+    def saveToGamesTable(self)-> bool:
+        super().saveToGamesTable()
+        try:
+            db = getDataBase()
+            cursor = db.cursor()
+            cursor.execute('INSERT INTO mines (mineLocations, revealedTiles, multiplier, gameInProgress, uniqueGameId ) VALUES (?, ?, ?, ?, ?)', 
+                        (json.dumps(self.mineLocations), json.dumps(self.revealedTiles), self.multiplier, self.gameInProgress, self.gameId ))
+            db.commit()
+            db.close()
+            return True
+        except Exception as e:
+            print(str(e))
+            return False
 
-userid = "test2"
+
+"""userid = "test2"
 serverSeed = "seeeed"
 clientSeed = "I can be anythinig and set by the player"
 nonce = 0
@@ -61,4 +77,4 @@ print(test.multiplier)
 test.handleTileClick(1)
 
 test.calculateMultiplier()
-print(test.multiplier)
+print(test.multiplier)"""
