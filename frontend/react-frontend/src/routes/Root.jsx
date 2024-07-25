@@ -48,7 +48,7 @@ const Root = () => {
                 </li>
                 <li>
                   <Link to={`mines`}>
-                  Mines <FaBomb />
+                    Mines <FaBomb />
                   </Link>
                 </li>
                 <li>
@@ -68,14 +68,14 @@ const Root = () => {
                   </a>
                 </li>
                 <li>
-                  <a>
-                    Deposit <PiHandWithdraw />{" "}
-                  </a>
+                  <Link to={`deposit`}>
+                    Deposit <PiHandWithdraw />
+                  </Link>
                 </li>
                 <li>
-                  <a>
-                    Withdraw <PiHandDeposit />{" "}
-                  </a>
+                  <Link to={`withdraw`}>
+                    Withdraw <PiHandDeposit />
+                  </Link>
                 </li>
 
                 <li>
@@ -126,7 +126,6 @@ const Root = () => {
             </div>
           </div>
         </div>
-        
 
         <div id="detail">
           <Outlet />

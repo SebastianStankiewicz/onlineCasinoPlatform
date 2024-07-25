@@ -7,9 +7,15 @@ import {
 import "./index.css";
 import Root from "./routes/Root";
 import ErrorPage from "./ErrorPage";
-import Plinko from "./routes/games/Plinko";
+
 import Upgrade from "./routes/games/Upgrade";
 import Game from "./routes/games/Mines/Game";
+import GamePlinko from "./routes/games/Plinko/GamePlinko";
+
+import Withdraw from "./routes/wallet/Withdraw";
+import Deposit from "./routes/wallet/Deposit";
+
+
 
 
 const router = createBrowserRouter([
@@ -20,7 +26,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "plinko",
-        element: <Plinko />,
+        element: <GamePlinko />,
       },
       {
         path: "upgrade",
@@ -29,7 +35,17 @@ const router = createBrowserRouter([
       {
         path: "mines",
         element: <Game/>,
+      },
+      {
+        path: "deposit",
+        element: <Deposit/>,
+      },
+      {
+        path: "withdraw",
+        element: <Withdraw/>,
       }
+
+
     ],
   },
 ]);
