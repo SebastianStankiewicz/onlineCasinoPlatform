@@ -106,8 +106,32 @@ def createMinesGame():
 
 @app.route('/playGame/mines/clickTile', methods=['POST'])
 def clickTile():
-    #If the user return "pass"es authentication then:
-    return "pass"
+    try:
+        userName = request.json['userName']
+        authenticationToken = request.json['authenticationToken']
+        tileLocation = request.json['tileLocation']
+
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticationToken)
+
+        if verificationCheck and user.setNonceAndSeedForIncompleteMinesGame():
+            #Need to search the mines table for latest game thats not complete yet
+            #IMPORTANT SHOULDNT USE THAT BECAUSE NONCE AND STUFF WILL CHANGE!!!
+            
+            if user.getCurrentMinesGameData():
+                game = ProvablyFairGameMines(user.userId, user.serverSeed, user.clientSeed, user.nonce, None)
+                game.setGameData(user.revealedTiles, user.mineLocaions, user.gameId)
+                if game.handleTileClick(tileLocation) : 
+                    return jsonify({'success': True})
+                else:
+                    jsonify({'success': True})
+
+        return jsonify({'success': False})
+
+    except Exception as e:
+        return jsonify({'success': False,
+                        'message': str(e)})
+
 
 @app.route('/playGame/mines/cashout', methods=['POST'])
 def cashoutMinesGame():

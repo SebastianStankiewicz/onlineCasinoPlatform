@@ -11,7 +11,7 @@ class ProvablyFairGameMines(ProvablyFairGame):
         self.revealedTiles = []
         self.mineLocations = []
         self.multiplier = None
-        self.gameInProgress = True
+        self.gameInProgress = 1
         super().__init__(userId, serverSeed, clientSeed, nonce, betAmount)
 
     def generateNewGame(self, numberOfMines:int) -> None:
@@ -20,9 +20,11 @@ class ProvablyFairGameMines(ProvablyFairGame):
         self.calculateMultiplier()
     
     #When a game is in progress and can call this function
-    def setGameData(self, revealedTiles, mineLocations):
+    #When objct is made a game id is randmoly genned so need to override this.
+    def setGameData(self, revealedTiles, mineLocations, gameId):
         self.revealedTiles = revealedTiles
         self.mineLocations = mineLocations
+        self.gameId = gameId
 
     # 3% house edge
     def calculateMultiplier(self) -> None:
@@ -38,14 +40,31 @@ class ProvablyFairGameMines(ProvablyFairGame):
             self.multiplier = round(0.97 * (1/multi),2)
 
     def handleTileClick(self, tileLocation: int) -> None:
+        #TODO Need to convert data back to list i think?
+
+        self.revealedTiles = json.loads(self.revealedTiles)
+        self.mineLocations = json.loads(self.mineLocations)
+
         if tileLocation not in self.revealedTiles:
             if(tileLocation in self.mineLocations):
                 #Game over
-                self.gameInPlay = False          
+                self.gameInProgress = 0
+                self.multiplier = 0          
             else:
                 #Safe tile clicked. also need to re calculate the multiplier 
                 self.revealedTiles.append(tileLocation) 
                 self.calculateMultiplier()
+
+            try:
+                db = getDataBase()
+                cursor = db.cursor()
+                cursor.execute("UPDATE mines SET revealedTiles = ?, gameInProgress = ?, multiplier = ? WHERE uniqueGameId = ?", (json.dumps(self.revealedTiles), self.gameInProgress, self.multiplier, self.gameId) )
+                db.commit()
+                return True
+            except Exception as e:
+                print(str(e))
+                return False
+        return False    
 
     #@overide
     def saveToGamesTable(self)-> bool:

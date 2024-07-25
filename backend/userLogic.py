@@ -80,12 +80,14 @@ class User:
         else:
             self.userName = userName
             self.authenticationToken = authenticationToken
+            self.userId = user["userId"]
             return True
         
     def updateUserObjectWithSeedInputs(self) -> bool:
         """This is called for example in drop ball method
         Used to populate the user object with data.
         -Assumes that user already authenticated/ authenticationUser called previousley
+        -WONT work for mines as the values may have changed. (User can start game come of page and reload but have played plinko inbetween and hence nonce or either seed changed)
         """
         db = getDataBase()
         cursor = db.cursor()
@@ -98,10 +100,42 @@ class User:
             self.userId = user["userId"]
             self.serverSeed = user["serverSeed"]
             self.clientSeed = user["clientSeed"]
-            self.serverSeed = user["serverSeed"]
             self.nonce = user["nonce"]
             return True
+        
+    def setNonceAndSeedForIncompleteMinesGame(self) -> bool:
+            db = getDataBase()
+            cursor = db.cursor()
 
+            #cursor.execute('SELECT * FROM mines JOIN games ON mines.uniqueGameId = games.uniqueGameId WHERE games.uniqueUserId = ? AND mines.gameInProgress = 1', (str(self.userId)))
+            cursor.execute('SELECT serverSeed, clientSeed, nonce FROM games JOIN mines ON games.uniqueGameId = mines.uniqueGameId WHERE games.uniqueUserId = ? AND mines.gameInProgress = 1', (str(self.userId)))
+            response = cursor.fetchone()
+            if response is None:
+                return False
+            else:
+                self.serverSeed = response["serverSeed"]
+                self.clientSeed = response["clientSeed"]
+                self.nonce = response["nonce"]
+                return True
+            
+    def getCurrentMinesGameData(self) -> bool:
+        db = getDataBase()
+        cursor = db.cursor()
+
+        cursor.execute('SELECT mineLocations, revealedTiles, multiplier, games.uniqueGameId as uniqueGameId FROM mines JOIN games ON mines.uniqueGameId = games.uniqueGameId WHERE games.uniqueUserId = ? AND mines.gameInProgress = 1', (str(self.userId)))
+        response = cursor.fetchone()
+
+        if response is None:
+            return False
+        else:
+            self.mineLocaions = response["mineLocations"]
+            self.revealedTiles = response["revealedTiles"]
+            self.multiplier = response["multiplier"]
+            self.gameId = response["uniqueGameId"]
+ 
+            return True
+
+                
 
       
 
