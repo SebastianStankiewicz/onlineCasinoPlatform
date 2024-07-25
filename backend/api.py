@@ -116,7 +116,7 @@ def clickTile():
 
         if verificationCheck and user.setNonceAndSeedForIncompleteMinesGame():
             #Need to search the mines table for latest game thats not complete yet
-            #IMPORTANT SHOULDNT USE THAT BECAUSE NONCE AND STUFF WILL CHANGE!!!
+            #TODO Refactor and look back at this code!
             
             if user.getCurrentMinesGameData():
                 game = ProvablyFairGameMines(user.userId, user.serverSeed, user.clientSeed, user.nonce, None)
@@ -124,7 +124,7 @@ def clickTile():
                 if game.handleTileClick(tileLocation) : 
                     return jsonify({'success': True})
                 else:
-                    jsonify({'success': True})
+                    return jsonify({'success': False})
 
         return jsonify({'success': False})
 
@@ -135,8 +135,28 @@ def clickTile():
 
 @app.route('/playGame/mines/cashout', methods=['POST'])
 def cashoutMinesGame():
-    return "pass"
+    try:
+        userName = request.json['userName']
+        authenticationToken = request.json['authenticationToken']
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticationToken)
 
+        if verificationCheck:
+            if user.getCurrentMinesGameData():
+                game = ProvablyFairGameMines(user.userId, user.serverSeed, user.clientSeed, user.nonce, None)
+                game.setGameData(user.revealedTiles, user.mineLocaions, user.gameId)
+                if game.cashout():
+                    return jsonify({'success': True})
+                else:
+                    return jsonify({'success': False})
+        return jsonify({'success': False})
+
+
+    except Exception as e:
+        return jsonify({'success': False,
+                        'message': str(e)})
+
+#TODO Use this and implement it
 @app.route('/playGame/mines/getActiveGame', methods=['POST'])
 def getActiveMinesGame():
     return "pass"

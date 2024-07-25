@@ -65,6 +65,22 @@ class ProvablyFairGameMines(ProvablyFairGame):
                 print(str(e))
                 return False
         return False    
+    
+    #TODO refactor
+    def cashout(self)->bool:
+        try:
+            db = getDataBase()
+            cursor = db.cursor()
+            print(self.gameId)
+            cursor.execute("UPDATE mines SET gameInProgress = 0 WHERE uniqueGameId = ?", (self.gameId,))
+            db.commit()
+            return True
+
+        except Exception as e:
+                    print(str(e))
+                    return False
+
+
 
     #@overide
     def saveToGamesTable(self)-> bool:
