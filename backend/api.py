@@ -42,8 +42,10 @@ def createUserAPI():
 
         user = User()
         userCreated = user.createUser(userName, password)
+        walletCreated = user.createUserWallet()
+        
 
-        if userCreated:
+        if userCreated and walletCreated:
             return jsonify({'success': True,
                             'authenticationToken': user.authenticationToken})
         else:
@@ -73,10 +75,7 @@ def loginAPI():
     except Exception as e:
         return jsonify({'success': False,
                         'message': str(e)})
-            
-
-
-
+    
 
 ########################################################
 

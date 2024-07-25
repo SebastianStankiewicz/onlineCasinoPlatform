@@ -31,14 +31,15 @@ class User:
             return False
         
         self.authenticationToken = generateToken(15)
+        self.userId = generateToken(10)
         self.clientSeed = generateToken(15)
         self.serverSeed = generateToken(15)
         self.nonce = 0
         self.userName = userName
         self.password = password
 
-        cursor.execute('INSERT INTO users (username, hashedPassword, clientSeed, serverSeed, nonce, authenticationToken) VALUES (?, ?, ?, ?, ?, ?)',
-                       (self.userName, self.password, self.clientSeed, self.serverSeed, self.nonce, self.authenticationToken))
+        cursor.execute('INSERT INTO users (username, hashedPassword, clientSeed, serverSeed, nonce, authenticationToken, userId) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                       (self.userName, self.password, self.clientSeed, self.serverSeed, self.nonce, self.authenticationToken, self.userId))
         db.commit()
         db.close()
         return True
@@ -173,6 +174,29 @@ class User:
             db.commit()
             db.close()
             return True
+        
+    def createUserWallet(self)->bool:
+        """Called directly after a new user function is called.
+            Uses the wallet table and uniqueUserId linking with users table
+            1. Generate a public and private keypair for deposits + withdraws
+            2.init balance to 0 
+        """
+        try:
+        #TODO Use a solana libray to generate key pairs. Just use random for now.
+            self.privateKey = generateToken(10)
+            self.publicKey = generateToken(10)
+
+            db = getDataBase()
+            cursor = db.cursor()
+            cursor.execute('INSERT INTO wallet (balance, privateKey, publicKey, uniqueUserId) VALUES (?, ?, ?, ?)', (0.0, self.privateKey, self.publicKey, self.userId))
+            db.commit()
+            db.close()
+            return True
+        except Exception as e:
+            print(str(e))
+            return False
+
+
 
 
 
