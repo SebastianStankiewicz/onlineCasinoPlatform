@@ -207,6 +207,8 @@ def makeUpgrade():
             if user.updateUserObjectWithSeedInputs():
                 game = ProvablyFairGameUpgrade(user.userId, user.serverSeed, user.clientSeed, user.nonce, betAmount)
                 game.generateNewGame(targetValue)
+                user.incrementNonce()
+                game.saveToGamesTable()
                 return jsonify({
                     'success': True,
                     'rotationAngle': game.rotationAngle,
