@@ -207,7 +207,7 @@ const PlinkoGameBoard = ({ dropLocation, setDropLocation, betOutcome }) => {
       const updatedOutcomes = [newEntry, ...prevOutcomes];
 
       // Return only the first 5 most recent entries
-      return updatedOutcomes.slice(0, 5);
+      return updatedOutcomes.slice(0, 10);
     });
   };
 
@@ -255,10 +255,10 @@ const PlinkoGameBoard = ({ dropLocation, setDropLocation, betOutcome }) => {
 
     return newBucket;
   };
-
+  
+//TODO: Add color change according to win multiplier
   return (
     <div>
-      <div ref={scene} />
       
       <ul className="flex space-x-2">
         {recentOutcomes.map((outcome, index) => (
@@ -267,6 +267,9 @@ const PlinkoGameBoard = ({ dropLocation, setDropLocation, betOutcome }) => {
           </li>
         ))}
       </ul>
+      <div ref={scene} />
+
+      
     </div>
   );
 };

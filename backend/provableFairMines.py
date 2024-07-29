@@ -15,8 +15,8 @@ class ProvablyFairGameMines(ProvablyFairGame):
         super().__init__(userId, serverSeed, clientSeed, nonce, betAmount)
 
     def generateNewGame(self, numberOfMines:int) -> None:
-        random.seed(self.gameSeed)       
-        self.mineLocations = random.sample(range(1, 25), numberOfMines)
+        random.seed(self.gameSeed)    
+        self.mineLocations = random.sample(range(1, 25), int(numberOfMines))
         self.calculateMultiplier()
     
     #When a game is in progress and can call this function

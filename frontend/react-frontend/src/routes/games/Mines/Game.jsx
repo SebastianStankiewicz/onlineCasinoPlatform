@@ -2,6 +2,7 @@ import React from "react";
 import { Grid } from "./Grid";
 import { useState } from "react";
 import GameInput from "./GameInput";
+import { minesCreateGameApiCall, minesClickTileGameApiCall, minesCashoutApiCall } from "../../../api";
 
 const Game = () => {
     const [gameData, setGameData] = useState(null);
@@ -16,46 +17,32 @@ const Game = () => {
     const [alerts, setAlerts] = useState([]);
   
     const [inputButtonText, setInputButtonText] = useState("Clear Grid");
+
+    const resetGameBoard = async () => {
+      //Used to reset the state of the game board
+      setMineTiles([]);
+      setRevealedTiles([]);
+    };
+
     const cashout = async () => {
-        // Make a request to server to cash out and then reload the page
+        // Refactor this snippet of code.
+
         try {
-          const result = await cashoutCall(authToken, userName, gameId);
-          if (result.cashedOut == "true") {
+          const result = await minesCashoutApiCall("e6df528e1bc098aca0dd4a49471296", 
+          "test18",);
+          console.log(result)
+          if (result.success == true) {
             // Assuming you need to check if result indicates success
             setGameInPlay(false);
             resetGameBoard();
             setUserBalance(result.balance);
-            const newAlert = (
-              <Alert
-                message={
-                  <>
-                    Cashed Out: <strong>{result.winnings}</strong> with{" "}
-                    <strong>{result.multiplier}x</strong> multiplier
-                  </>
-                }
-                alertType={"alert-success"}
-              />
-            );
-            setAlerts([...alerts, newAlert]);
+
           } else {
             setGameInPlay(false);
             resetGameBoard();
-            
-            if(!inputButtonText == "Clear board!"){const newAlert = (
-              <Alert
-                message={`Cannot cash out right now! `}
-                alertType={"alert-error"}
-              />
-            );
-    
-            setAlerts([...alerts, newAlert]);}
-            
-      
-            
-    
-    
-    
-          }
+            console.log("pass");
+        
+          };
         } catch (err) {
           console.log("Error cashing out:", err);
         }
@@ -64,13 +51,20 @@ const Game = () => {
     const handlePlayGame = async (e) => {
         //Make a request and first chekc to see if a game is in play and use that to set state variable.
         try {
-          const result = await playGame(
-            authToken,
-            userName,
+          const result = await minesCreateGameApiCall(
+            "e6df528e1bc098aca0dd4a49471296", 
+            "test18",
             e.target.elements.betAmount.value,
             e.target.elements.numberMines.value
           );
+          console.log(result)
+          if (result.success == true){
+            setGameInPlay(true);
+            setInputButtonText("Cash out!");
+            setRevealedTiles(result.revealedTiles);
+          }
     
+          //Code below an be ignored/deleted
           if (!result.unableToCreateGame) {
             //No active game in play
             try {
@@ -98,8 +92,19 @@ const Game = () => {
 
     const handleTilePressed = async (tileNumber) => {
         try {
-          const result = await tileClicked(authToken, userName, gameId, tileNumber);
-    
+          const result = await minesClickTileGameApiCall(
+          "e6df528e1bc098aca0dd4a49471296", 
+          "test18",
+          tileNumber);
+          if (result.success == true){
+            if (result.mine == true){
+              setMineTiles(result.mineLocations)
+              setInputButtonText("Clear board!")
+            } else{
+              setRevealedTiles(result.revealedTiles);
+            }
+          }
+          //Can delte /ignore
           if (result.unableToClickTile === "false") {
             if (result.mine === "true") {
               setMineTiles(result.mineLocations);

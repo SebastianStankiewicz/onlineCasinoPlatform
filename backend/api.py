@@ -96,7 +96,8 @@ def createMinesGame():
                 game.generateNewGame(numberOfMines)
                 if game.saveToGamesTable():
                     if user.incrementNonce():
-                        return jsonify({'success': True})
+                        return jsonify({'success': True,
+                                        'revealedTiles': [] })
         return jsonify({'success': False})
     
     except Exception as e:
@@ -112,7 +113,7 @@ def clickTile():
 
         user = User()
         verificationCheck = user.authenticateUser(userName, authenticationToken)
-
+        
         if verificationCheck and user.setNonceAndSeedForIncompleteMinesGame():
             #Need to search the mines table for latest game thats not complete yet
             #TODO Refactor and look back at this code!
@@ -120,11 +121,18 @@ def clickTile():
             if user.getCurrentMinesGameData():
                 game = ProvablyFairGameMines(user.userId, user.serverSeed, user.clientSeed, user.nonce, None)
                 game.setGameData(user.revealedTiles, user.mineLocaions, user.gameId)
-                if game.handleTileClick(tileLocation) : 
-                    return jsonify({'success': True})
-                else:
-                    return jsonify({'success': False})
-
+                if game.handleTileClick(tileLocation):
+                    #User clicked a mine
+                    if game.gameInProgress == 0:
+                        return jsonify({'success': True,
+                                        'mine': True,
+                                        'mineLocations': game.mineLocations,
+                                        'multiplier': game.multiplier})
+                    else:
+                        return jsonify({'success': True,
+                                        'mine': False,
+                                        'revealedTiles': game.revealedTiles,
+                                        'multiplier': game.multiplier})
         return jsonify({'success': False})
 
     except Exception as e:
@@ -145,7 +153,8 @@ def cashoutMinesGame():
                 game = ProvablyFairGameMines(user.userId, user.serverSeed, user.clientSeed, user.nonce, None)
                 game.setGameData(user.revealedTiles, user.mineLocaions, user.gameId)
                 if game.cashout():
-                    return jsonify({'success': True})
+                    return jsonify({'success': True,
+                                    'balance': 50})
                 else:
                     return jsonify({'success': False})
         return jsonify({'success': False})

@@ -20,3 +20,31 @@ export const upgradeApiCall = async (authenticationToken, userName, betAmount, t
     });
     return response.json();
   };
+
+
+  export const minesCreateGameApiCall = async (authenticationToken, userName, betAmount, numberOfMines) => {
+    const response = await fetch(apiUrl + '/playGame/mines/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authenticationToken, userName, betAmount, numberOfMines })
+    });
+    return response.json();
+  };
+
+  export const minesClickTileGameApiCall = async (authenticationToken, userName, tileLocation) => {
+    const response = await fetch(apiUrl + '/playGame/mines/clickTile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authenticationToken, userName, tileLocation })
+    });
+    return response.json();
+  };
+
+  export const minesCashoutApiCall = async (authenticationToken, userName) => {
+    const response = await fetch(apiUrl + '/playGame/mines/cashout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authenticationToken, userName })
+    });
+    return response.json();
+  };

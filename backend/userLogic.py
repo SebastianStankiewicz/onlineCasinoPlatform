@@ -109,21 +109,23 @@ class User:
             cursor = db.cursor()
 
             #cursor.execute('SELECT * FROM mines JOIN games ON mines.uniqueGameId = games.uniqueGameId WHERE games.uniqueUserId = ? AND mines.gameInProgress = 1', (str(self.userId)))
-            cursor.execute('SELECT serverSeed, clientSeed, nonce FROM games JOIN mines ON games.uniqueGameId = mines.uniqueGameId WHERE games.uniqueUserId = ? AND mines.gameInProgress = 1', (str(self.userId)))
+            cursor.execute('SELECT serverSeed, clientSeed, nonce FROM games JOIN mines ON games.uniqueGameId = mines.uniqueGameId WHERE games.uniqueUserId = ? AND mines.gameInProgress = 1', (str(self.userId),))
             response = cursor.fetchone()
+            
             if response is None:
                 return False
             else:
                 self.serverSeed = response["serverSeed"]
                 self.clientSeed = response["clientSeed"]
                 self.nonce = response["nonce"]
+                print(self.serverSeed, self.clientSeed, self.nonce)
                 return True
             
     def getCurrentMinesGameData(self) -> bool:
         db = getDataBase()
         cursor = db.cursor()
-
-        cursor.execute('SELECT mineLocations, revealedTiles, multiplier, games.uniqueGameId as uniqueGameId FROM mines JOIN games ON mines.uniqueGameId = games.uniqueGameId WHERE games.uniqueUserId = ? AND mines.gameInProgress = 1', (str(self.userId)))
+        
+        cursor.execute('SELECT mineLocations, revealedTiles, multiplier, games.uniqueGameId as uniqueGameId FROM mines JOIN games ON mines.uniqueGameId = games.uniqueGameId WHERE games.uniqueUserId = ? AND mines.gameInProgress = 1', (str(self.userId),))
         response = cursor.fetchone()
 
         if response is None:
