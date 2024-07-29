@@ -10,3 +10,13 @@ export const upgradeApiCall = async (authenticationToken, userName, betAmount, t
     });
     return response.json();
   };
+
+
+  export const plinkoApiCall = async (authenticationToken, userName, betAmount) => {
+    const response = await fetch(apiUrl + '/playGame/plinko/dropBall', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authenticationToken, userName, betAmount })
+    });
+    return response.json();
+  };

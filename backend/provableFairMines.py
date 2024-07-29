@@ -82,7 +82,7 @@ class ProvablyFairGameMines(ProvablyFairGame):
 
 
 
-    #@overide
+    #@override
     def saveToGamesTable(self)-> bool:
         super().saveToGamesTable()
         try:

@@ -177,11 +177,14 @@ def dropBall():
             if user.updateUserObjectWithSeedInputs():
                 game = ProvablyFairGamePlinko(user.userId, user.serverSeed, user.clientSeed, user.nonce, betAmount)
                 game.generateBall()
-                return jsonify({
-                    'success': True,
-                    'path': game.path,
-                    'dropLocation': game.dropLocation,
-                    'multiplier': game.multiplier})
+                if game.saveToGamesTable():
+                    user.incrementNonce()
+                    return jsonify({
+                        'success': True,
+                        'path': game.path,
+                        'dropLocation': game.dropLocation,
+                        'multiplier': game.multiplier,
+                        'betOutcome': round(game.multiplier * game.betAmount, 2)})
             
         return jsonify({'success': False,
                         'message': str(e)})

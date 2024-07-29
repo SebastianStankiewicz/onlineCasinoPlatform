@@ -38,7 +38,6 @@ class ProvablyFairGameUpgrade(ProvablyFairGame):
                 outcome = 1
             else:
                 outcome = 0
-            print(self.betAmount, self.targetValue, outcome, self.gameId)
             cursor.execute('INSERT INTO upgrade (wager, target, success, uniqueGameId) VALUES (?,?,?,?)', (self.betAmount, self.targetValue, outcome, self.gameId))
             db.commit()
             db.close()

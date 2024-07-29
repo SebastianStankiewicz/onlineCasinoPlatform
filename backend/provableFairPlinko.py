@@ -2,14 +2,14 @@ import random
 import json
 import os
 
-from provablyFair import ProvablyFairGame
+from provablyFair import ProvablyFairGame, getDataBase
 
 #You cant "loose" plinko you can just loose half your money never all of it
 
 class ProvablyFairGamePlinko(ProvablyFairGame):
     def __init__(self, userId: int, serverSeed: str, clientSeed: str, nonce: int, betAmount: int):
         self.multipliers = [16, 9, 2, 1.4, 1.4, 1.2, 1.1, 1, 0.5, 1, 1.1, 1.2, 1.4, 1.4, 2, 9, 16]
-        self.jsonFile = "/Users/sebastianstankiewicz/portfolioOnMac/projects/casinoGames/completeCasino/plinkoDropLocations.json"
+        self.jsonFile = "/Users/sebastianstankiewicz/portfolioOnMac/projects/casinoGames/completeCasino/backend/plinkoDropLocations.json"
         self.gameType = 2
 
         self.multiplier = None
@@ -35,4 +35,17 @@ class ProvablyFairGamePlinko(ProvablyFairGame):
         self.multiplier = self.multipliers[self.index + 8]
         self.dropLocation = self.getRandomDropLocation(self.jsonFile, str(self.multiplier))
 
+    #@override
+    def saveToGamesTable(self) -> bool:
+        super().saveToGamesTable()
+        try:
+            db = getDataBase()
+            cursor = db.cursor()
+            cursor.execute('INSERT INTO plinko (dropLocation, multiplier, path, uniqueGameId ) VALUES (?, ?, ?, ?)', (self.dropLocation, self.multiplier, json.dumps(self.path), self.gameId))
+            db.commit()
+            db.close()
+            return True
+        except Exception as e:
+            print(str(e))
+            return False
     
