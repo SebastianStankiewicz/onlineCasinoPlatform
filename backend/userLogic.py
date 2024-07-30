@@ -1,7 +1,25 @@
 import sqlite3
 import os
+import requests
+
+from solathon import Client, PublicKey, Transaction, Keypair
+from solathon.core.instructions import transfer
 
 DATABASE = "/Users/sebastianstankiewicz/portfolioOnMac/projects/casinoGames/completeCasino/backend/database/developmentDataBase.db"
+
+
+#TODO move to env file and create a config file - Using keypair from seperate wallet. Swithc to a token rather than solana tokens.
+HOUSEPUBLICWALLET = '41soa6GNXQ3kWSBKVZoZukPGHUvq7bocc7hx7BYVs6xd'
+HOUSEPRIVATEWALLET = [168,126,62,125,200,37,57,36,124,119,246,127,109,120,68,48,105,142,228,143,174,93,101,151,233,226,78,177,209,249,106,79,44,204,128,252,24,35,255,198,122,133,143,175,243,193,234,174,162,74,77,109,60,65,130,65,110,50,25,138,144,80,122,190]
+
+
+
+#Tx of token https://solscan.io/token/CtGgdsWu2ywJLDVcxTt2U5nCRDKnR4jyMMWF91ShTBV3?cluster=devnet
+
+
+client = Client("https://api.devnet.solana.com")
+TOKENADDRESS = "CtGgdsWu2ywJLDVcxTt2U5nCRDKnR4jyMMWF91ShTBV3" #Not in use
+lampartsPerSol = 1000000000
 
 def getDataBase():
     db = sqlite3.connect(DATABASE)
@@ -185,9 +203,9 @@ class User:
         """
         try:
         #TODO Use a solana libray to generate key pairs. Just use random for now.
-            self.privateKey = generateToken(10)
-            self.publicKey = generateToken(10)
-
+            keypair = Keypair()
+            self.privateKey = str(keypair.private_key)
+            self.publicKey = str(keypair.public_key)
             db = getDataBase()
             cursor = db.cursor()
             cursor.execute('INSERT INTO wallet (balance, privateKey, publicKey, uniqueUserId) VALUES (?, ?, ?, ?)', (0.0, self.privateKey, self.publicKey, self.userId))
@@ -197,7 +215,103 @@ class User:
         except Exception as e:
             print(str(e))
             return False
+        
+    #TODO Sperate this into its own file for wallet stuff 
+        
+    def getSOltoUSDC(self):
+        url = "https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd"
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            return data['solana']['usd']
+        else:
+            return None
+        
+    def withdrawBalance(self, withdrawAmount, withdrawPublicKey) -> bool:
+        """Assume that authenticaion been done before called
+           1. Ensure that the amount to withdarw is less than total balance to pay for gas.
+        """
+        try:
+            db = getDataBase()
+            cursor = db.cursor()
+            cursor.execute('SELECT balance FROM wallet WHERE uniqueUserId = ? ', (self.userId,))
+            response = cursor.fetchone()
 
+            if response is None:
+                return "Invalid user Id"
+
+            balance = response["balance"]
+
+
+            if balance < withdrawAmount:
+                #TODO Add a check to see if the house wallet can afford to credit the withdraw request.
+                return False
+            
+            usdPerSol = self.getSOltoUSDC()
+            if usdPerSol != None:
+                receiver = withdrawPublicKey
+                instruction = transfer(
+                    from_public_key=HOUSEPUBLICWALLET,
+                    to_public_key=receiver, 
+                    lamports=int(((withdrawAmount / usdPerSol) - 0.04 ) * lampartsPerSol)
+                    )
+                transaction = Transaction(instructions=[instruction], signers=[Keypair.from_private_key(HOUSEPRIVATEWALLET)])
+                client.send_transaction(transaction)
+                cursor.execute('UPDATE wallet SET balance = balance - ? WHERE uniqueUserId = ?', (withdrawAmount, self.userId))
+                db.commit()
+                db.close()
+                return True
+            return False
+            
+        except Exception as e:
+            print(str(e))
+            return False
+        
+
+
+    def checkForDeposit(self) -> bool:
+            """Miniumum deopist of say 0.05 SOL
+                1. Check to see if the users wallet balance is greater than 0.05, if so that means a deposit has been made.
+                2. Need to account for gas fees however
+                3. Convert price of solana to USDC value
+            """
+            db = getDataBase()
+            cursor = db.cursor()
+            cursor.execute('SELECT privateKey, publicKey FROM wallet  WHERE uniqueUserId = ? ', (self.userId, ))
+            response = cursor.fetchone()
+            
+            if response is None:
+                return "Invalid username or authentication token"
+
+            privateKey = Keypair.from_private_key(response["privateKey"])
+            publicKey = PublicKey(response["publicKey"])
+
+            userEscrowBalance = client.get_balance(publicKey)
+
+            if userEscrowBalance / lampartsPerSol > 0.05:
+                #Check price conversion BEFORE cashout so if it fails no withdraw request risks messing up.
+                usdPerSol = self.getSOltoUSDC()
+                if usdPerSol != None:
+                    #A deposit of greater than 0.05 SOL has been made
+                    receiver = PublicKey(HOUSEPUBLICWALLET)
+                    instruction = transfer(
+                        from_public_key=publicKey,
+                        to_public_key=receiver, 
+                        lamports=int(((userEscrowBalance / lampartsPerSol) - 0.04 ) * lampartsPerSol)
+                    )
+                    transaction = Transaction(instructions=[instruction], signers=[privateKey])
+                    client.send_transaction(transaction)
+                    #TODO use async to ensure TX goes through - But then credit the user wallet with new value.
+                    balanceDeposited = round(((userEscrowBalance / lampartsPerSol) - 0.04 ) * usdPerSol, 2)
+                    cursor.execute('UPDATE wallet SET balance = balance + ? WHERE uniqueUserId = ?', (balanceDeposited, self.userId))
+                    db.commit()
+                    db.close()
+                    return True
+            
+            return False
+    
+
+        
 
 
 

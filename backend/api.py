@@ -7,6 +7,7 @@ from provableFairUpgrade import ProvablyFairGameUpgrade
 from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 
+
 from userLogic import *
 
 
@@ -75,6 +76,56 @@ def loginAPI():
     except Exception as e:
         return jsonify({'success': False,
                         'message': str(e)})
+    
+
+@app.route('/user/wallet/checkForDeposit', methods=["POST"])
+def checkForDepositAPI():
+    try:
+        userName = request.json['userName']
+        authenticaionToken = request.json['authenticationToken']
+
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticaionToken)
+
+        if verificationCheck:
+            if user.checkForDeposit():
+
+                return jsonify({'success': True,
+                                'message': "Deposit recieved"})
+        return jsonify({'success': False,
+                                'message': "Deposit not recieved"})
+            
+        
+
+    except Exception as e:
+        return jsonify({'success': False,
+                        'message': str(e)})
+    
+@app.route('/user/wallet/withdraw', methods=["POST"])
+def withdrawAPI():
+    try:
+        userName = request.json['userName']
+        authenticaionToken = request.json['authenticationToken']
+        withdrawAmount = request.json['withdrawAmount']
+        withdrawPublicKey = request.json['withdrawPublicKey']
+
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticaionToken)
+
+        if verificationCheck:
+            if user.withdrawBalance(withdrawAmount, withdrawPublicKey):
+                return jsonify({'success': True,
+                                'message': "Withdraw made"})
+            
+        return jsonify({'success': False,
+                                'message': "Withdraw failed"})
+            
+        
+
+    except Exception as e:
+        return jsonify({'success': False,
+                        'message': str(e)})
+
     
 
 ########################################################
