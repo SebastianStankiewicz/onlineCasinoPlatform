@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { FaArrowDown, FaArrowRight } from "react-icons/fa";
 import { upgradeApiCall } from "../../api";
+import { useOutletContext } from "react-router-dom";
 
 function Upgrade() {
   const [winPercentage, setWinPercentage] = useState(0); // Example win percentage (could be state or props)
@@ -13,6 +14,8 @@ function Upgrade() {
 
   const [wheelColor, setWheelColor] = useState("text-secondary");
   const [arrowYMovement, setArrowyMovement] = useState(20);
+
+  const [balance, setBalance] = useOutletContext();
 
   useEffect(() => {
     const wagerValue = parseFloat(wager);
@@ -36,7 +39,6 @@ function Upgrade() {
 
   const spinWheel = async () => {
     try {
-      console.log(typeof(wager))
       const result = await upgradeApiCall("e6df528e1bc098aca0dd4a49471296", "test18", Number(wager), Number(target));
       if (result.success == true){
         setArrowyMovement(20);

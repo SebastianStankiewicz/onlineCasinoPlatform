@@ -3,6 +3,7 @@ import { Grid } from "./Grid";
 import { useState } from "react";
 import GameInput from "./GameInput";
 import { minesCreateGameApiCall, minesClickTileGameApiCall, minesCashoutApiCall } from "../../../api";
+import { useOutletContext } from "react-router-dom";
 
 const Game = () => {
     const [gameData, setGameData] = useState(null);
@@ -17,6 +18,7 @@ const Game = () => {
     const [alerts, setAlerts] = useState([]);
   
     const [inputButtonText, setInputButtonText] = useState("Clear Grid");
+    const [balance, setBalance] = useOutletContext();
 
     const resetGameBoard = async () => {
       //Used to reset the state of the game board

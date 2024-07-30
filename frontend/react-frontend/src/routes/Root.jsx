@@ -2,9 +2,12 @@ import { FaWallet, FaBomb, FaArrowUp, FaDice } from "react-icons/fa";
 import { PiHandWithdraw, PiHandDeposit } from "react-icons/pi";
 import { CgGames } from "react-icons/cg";
 import { GiBallPyramid } from "react-icons/gi";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useOutletContext } from "react-router-dom";
+import { useState } from "react";
 
 const Root = () => {
+  const [balance, setBalance] = useState(0);
+  
   return (
     <>
       <div className="navbar bg-base-100">
@@ -16,7 +19,7 @@ const Root = () => {
         </div>
         <div className="flex-none">
           <button className="btn btn-square btn-ghost">
-            <p>$100</p>
+            <p>${balance}</p>
           </button>
         </div>
       </div>
@@ -128,7 +131,7 @@ const Root = () => {
         </div>
 
         <div id="detail">
-          <Outlet />
+          <Outlet context={ [balance, setBalance]} />
         </div>
       </div>
     </>

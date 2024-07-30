@@ -2,10 +2,13 @@ import React, {useState} from 'react'
 import PlinkoGameBoard from './PlinkoGameBoard';
 import GameInputMenu from './GameInputMenu';
 import { plinkoApiCall } from '../../../api';
+import { useOutletContext } from "react-router-dom";
+
 
 const GamePlinko = () => {
     const [dropLocation, setDropLocation] = useState(null);
     const [betOutcome, setBetOutcome] = useState(null);
+    const [balance, setBalance] = useOutletContext();
 
     const placeBet = async () => {
       try{
