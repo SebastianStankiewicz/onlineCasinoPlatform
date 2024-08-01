@@ -1,13 +1,22 @@
 import React, { useState } from "react";
 
 const GameInputMenu = ({placeBet}) => {
+  const [betAmount, setBetAmount] = useState(10);
+
   return (
     <>
 <div className="flex flex-col h-screen items-center justify-center">
         <div className="stats bg-primary text-primary-content p-4 rounded-lg shadow-lg">
           <div className="stat">
             <div className="flex flex-row gap-2 text-secondary ">
-              <input type="number" placeholder="" className="w-28 stat-value" />
+              <input 
+              type="number" 
+              placeholder="$" 
+              className="w-28 stat-value"
+              name="betAmount"
+              onChange={(e) => {setBetAmount(e.target.value)}}
+              value={betAmount}
+               />
               <svg
                 className="text-5xl text-white"
                 xmlns="http://www.w3.org/2000/svg"
@@ -24,7 +33,7 @@ const GameInputMenu = ({placeBet}) => {
           </div>
         </div>
       
-        <button className="btn btn-accent mt-8 w-28 " onClick={placeBet}>Drop Ball!</button>
+        <button className="btn btn-accent mt-8 w-28 " onClick={() => {placeBet(betAmount)}}>Drop Ball!</button>
       </div>
     </>
   );

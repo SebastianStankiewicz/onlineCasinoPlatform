@@ -260,14 +260,21 @@ def dropBall():
             if user.updateUserObjectWithSeedInputs():
                 game = ProvablyFairGamePlinko(user.userId, user.serverSeed, user.clientSeed, user.nonce, betAmount)
                 game.generateBall()
+                user.payForBet(game.betAmount)
                 if game.saveToGamesTable():
+                    betOutcome = round(game.multiplier * game.betAmount, 2)
+                    db = getDataBase()
+                    cursor = db.cursor()
+                    cursor.execute('UPDATE wallet SET balance = balance + ? WHERE uniqueUserId = ?', (betOutcome, game.userId))
+                    db.commit()
                     user.incrementNonce()
                     return jsonify({
                         'success': True,
                         'path': game.path,
                         'dropLocation': game.dropLocation,
                         'multiplier': game.multiplier,
-                        'betOutcome': round(game.multiplier * game.betAmount, 2)})
+                        'betOutcome': betOutcome,
+                        'balance': user.getBalance()})
             
         return jsonify({'success': False,
                         'message': str(e)})
