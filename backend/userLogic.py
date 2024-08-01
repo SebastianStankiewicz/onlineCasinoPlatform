@@ -78,6 +78,7 @@ class User:
             return False
         
         self.authenticationToken = generateToken(15)
+        self.userId = user["userId"]
 
         cursor.execute('UPDATE users SET authenticationToken = ? WHERE userId = ?', (self.authenticationToken, user["userId"]))
         db.commit()
@@ -155,8 +156,27 @@ class User:
             self.gameId = response["uniqueGameId"]
  
             return True
+        
+    def getBalance(self) -> float:
+        db = getDataBase()
+        cursor = db.cursor()
 
-                
+        cursor.execute('SELECT balance FROM wallet WHERE uniqueUserId = ?', (self.userId,))
+        response = cursor.fetchone()
+
+        if response is None:
+            return 0
+        else:
+            return response['balance']
+        
+
+    def payForBet(self, betAmount) -> None:
+        db = getDataBase()
+        cursor = db.cursor()
+
+        cursor.execute('UPDATE wallet SET balance = balance - ? WHERE uniqueUserId = ?', (betAmount, self.userId))
+        db.commit()
+
 
       
 

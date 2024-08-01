@@ -1,14 +1,21 @@
 import React from "react";
+import Login from "../../components/Login";
+import { useOutletContext } from "react-router-dom";
 
 const Withdraw = () => {
+
+  const [balance, setBalance, authToken, setAuthToken, userName, setUserName] =
+  useOutletContext();
+
   return (
-    <div>
+    <>
+    {authToken && userName ? (    <div>
       <h1 className="text-5xl">Withdraw</h1>
 
       <div className="stats bg-primary text-primary-content">
         <div className="stat">
           <div className="stat-title">Available balance</div>
-          <div className="stat-value">$579</div>
+          <div className="stat-value">${balance}</div>
           <p>Enter USDC address:</p>
           <input
             type="text"
@@ -64,7 +71,11 @@ const Withdraw = () => {
           </table>
         </div>
       </div>
-    </div>
+    </div>) : (
+      <Login/>
+    )}
+
+    </>
   );
 };
 

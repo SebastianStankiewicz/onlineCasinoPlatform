@@ -48,3 +48,22 @@ export const upgradeApiCall = async (authenticationToken, userName, betAmount, t
     });
     return response.json();
   };
+
+  export const userLogin = async (userName, password) => {
+    const response = await fetch(apiUrl + '/user/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userName, password })
+    });
+    return response.json();
+  };
+
+
+  export const getBalance = async (authenticationToken, userName) => {
+    const response = await fetch(apiUrl + '/user/wallet/getBalance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authenticationToken, userName })
+    });
+    return response.json();
+  };

@@ -7,7 +7,9 @@ import { useState } from "react";
 
 const Root = () => {
   const [balance, setBalance] = useState(0);
-  
+  const [authToken, setAuthToken] = useState("");
+  const [userName, setUserName] = useState("");
+
   return (
     <>
       <div className="navbar bg-base-100">
@@ -131,7 +133,7 @@ const Root = () => {
         </div>
 
         <div id="detail">
-          <Outlet context={ [balance, setBalance]} />
+          <Outlet context={ [balance, setBalance, authToken, setAuthToken, userName, setUserName]} />
         </div>
       </div>
     </>

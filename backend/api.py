@@ -65,10 +65,14 @@ def loginAPI():
 
         user = User()
         validLogin = user.login(userName, password)
+        balance = user.getBalance()
+        print(user.userId)
 
         if validLogin:
             return jsonify({'success': True,
-                            'authenticationToken': user.authenticationToken})
+                            'authenticationToken': user.authenticationToken,
+                            'balance': balance
+                            })
         else:
             return jsonify({'success': False})
 
@@ -122,6 +126,25 @@ def withdrawAPI():
             
         
 
+    except Exception as e:
+        return jsonify({'success': False,
+                        'message': str(e)})
+    
+@app.route('/user/wallet/getBalance', methods=["POST"])
+def getBalanceAPI():
+    try:
+        userName = request.json['userName']
+        authenticaionToken = request.json['authenticationToken']
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticaionToken)
+
+        if verificationCheck:
+            balance = user.getBalance()
+            return jsonify({'success': True,
+                        'balance': balance})  
+                 
+        return jsonify({'success': False,
+                        'message': "Failed to get balance"})
     except Exception as e:
         return jsonify({'success': False,
                         'message': str(e)})
@@ -270,12 +293,14 @@ def makeUpgrade():
             if user.updateUserObjectWithSeedInputs():
                 game = ProvablyFairGameUpgrade(user.userId, user.serverSeed, user.clientSeed, user.nonce, betAmount)
                 game.generateNewGame(targetValue)
+                user.payForBet(game.betAmount) #Dont like this implementation.
                 user.incrementNonce()
                 game.saveToGamesTable()
                 return jsonify({
                     'success': True,
                     'rotationAngle': game.rotationAngle,
-                    'gameOutCome': game.gameOutcome,})
+                    'gameOutCome': game.gameOutcome,
+                    'balance': user.getBalance()})
 
         return jsonify({'success': False})
 

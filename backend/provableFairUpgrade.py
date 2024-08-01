@@ -16,13 +16,16 @@ class ProvablyFairGameUpgrade(ProvablyFairGame):
         random.seed(self.gameSeed)
         winPercentage = (self.betAmount / self.targetValue) * 100
         gameRoll = random.randrange(1, 100)
-        print(f'win percentage: {(winPercentage / 100) * 360}. Game Roll: {gameRoll}')
         
         if gameRoll < winPercentage:
             #Game won - Roll between 360 MINUS win perenntage and from there to 360
             maxWinAngle = (winPercentage / 100) * 360;
             self.rotationAngle = 360 - (random.random() * maxWinAngle)
             self.gameOutcome = "won"
+            db = getDataBase()
+            cursor = db.cursor()
+            cursor.execute('UPDATE wallet SET balance = balance + ? WHERE uniqueUserId = ?', (targetValue, self.userId))
+            db.commit()
         else:
             #Game lost Roll between 0 and win percentage?
             self.rotationAngle = random.random() * (winPercentage / 100) * 360;
