@@ -94,7 +94,8 @@ def checkForDepositAPI():
             if user.checkForDeposit():
 
                 return jsonify({'success': True,
-                                'message': "Deposit recieved"})
+                                'message': "Deposit recieved",
+                                'balance': user.getBalance()})
         return jsonify({'success': False,
                                 'message': "Deposit not recieved"})
             
@@ -118,12 +119,33 @@ def withdrawAPI():
         if verificationCheck:
             if user.withdrawBalance(withdrawAmount, withdrawPublicKey):
                 return jsonify({'success': True,
+                                'balance': user.getBalance(),
                                 'message': "Withdraw made"})
             
         return jsonify({'success': False,
                                 'message': "Withdraw failed"})
             
         
+
+    except Exception as e:
+        return jsonify({'success': False,
+                        'message': str(e)})
+    
+@app.route('/user/wallet/getDepositAddress', methods=["POST"])
+def getDepositAddress():
+    try:
+        userName = request.json['userName']
+        authenticaionToken = request.json['authenticationToken']
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticaionToken)
+
+        if verificationCheck:
+            depositAddress = user.getDepositAddress()
+            return jsonify({'success': True,
+                        'depositAddress': depositAddress}) 
+
+        return jsonify({'success': False,
+                        'message': "Failed to get address"})
 
     except Exception as e:
         return jsonify({'success': False,

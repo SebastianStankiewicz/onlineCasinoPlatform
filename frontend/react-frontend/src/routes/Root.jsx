@@ -27,7 +27,7 @@ const Root = () => {
       </div>
       <div className="flex">
         <div>
-          <div className="drawer sm:drawer-open">
+          <div className="drawer lg:drawer-open">
             <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
             <div className="drawer-content flex flex-col items-center justify-center">
               {/* Page content here */}

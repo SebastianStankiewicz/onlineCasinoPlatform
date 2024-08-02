@@ -67,3 +67,30 @@ export const upgradeApiCall = async (authenticationToken, userName, betAmount, t
     });
     return response.json();
   };
+
+  export const withdrawAPICALL = async (authenticationToken, userName, withdrawAmount, withdrawPublicKey) => {
+    const response = await fetch(apiUrl + '/user/wallet/withdraw', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authenticationToken, userName, withdrawAmount, withdrawPublicKey })
+    });
+    return response.json();
+  };
+
+  export const getDepositAddress = async (authenticationToken, userName) => {
+    const response = await fetch(apiUrl + '/user/wallet/getDepositAddress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authenticationToken, userName })
+    });
+    return response.json();
+  };
+
+  export const checkForDeposit = async (authenticationToken, userName) => {
+    const response = await fetch(apiUrl + '/user/wallet/checkForDeposit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authenticationToken, userName })
+    });
+    return response.json();
+  };

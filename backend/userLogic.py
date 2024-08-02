@@ -169,6 +169,16 @@ class User:
         else:
             return response['balance']
         
+    def getDepositAddress(self) -> str:
+        db = getDataBase()
+        cursor = db.cursor()
+        cursor.execute('SELECT publicKey FROM wallet WHERE uniqueUserId = ?', (self.userId,))
+        response = cursor.fetchone()
+
+        if response is None:
+            return "Reload and try again"
+        else:
+            return response['publicKey']
 
     def payForBet(self, betAmount) -> None:
         db = getDataBase()
@@ -256,6 +266,7 @@ class User:
             cursor = db.cursor()
             cursor.execute('SELECT balance FROM wallet WHERE uniqueUserId = ? ', (self.userId,))
             response = cursor.fetchone()
+            withdrawAmount = float(withdrawAmount)
 
             if response is None:
                 return "Invalid user Id"
@@ -263,11 +274,12 @@ class User:
             balance = response["balance"]
 
 
-            if balance < withdrawAmount:
+            if float(balance) < float(withdrawAmount):
                 #TODO Add a check to see if the house wallet can afford to credit the withdraw request.
                 return False
             
             usdPerSol = self.getSOltoUSDC()
+            
             if usdPerSol != None:
                 receiver = withdrawPublicKey
                 instruction = transfer(
@@ -275,6 +287,7 @@ class User:
                     to_public_key=receiver, 
                     lamports=int(((withdrawAmount / usdPerSol) - 0.04 ) * lampartsPerSol)
                     )
+                
                 transaction = Transaction(instructions=[instruction], signers=[Keypair.from_private_key(HOUSEPRIVATEWALLET)])
                 client.send_transaction(transaction)
                 cursor.execute('UPDATE wallet SET balance = balance - ? WHERE uniqueUserId = ?', (withdrawAmount, self.userId))
