@@ -27,7 +27,7 @@ const Root = () => {
       </div>
       <div className="flex">
         <div>
-          <div className="drawer lg:drawer-open">
+          <div className="drawer sm:drawer-open">
             <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
             <div className="drawer-content flex flex-col items-center justify-center">
               {/* Page content here */}
@@ -67,6 +67,9 @@ const Root = () => {
                   </Link>
                 </li>
 
+                <br></br>
+                <br></br>
+
                 <li className="bold text-2xl">
                   <a>
                     Wallet <FaWallet />
@@ -83,50 +86,7 @@ const Root = () => {
                   </Link>
                 </li>
 
-                <li>
-                  <br></br>
-                  <br></br>
-                  <div className="chat chat-start">
-                    <div className="chat-image avatar">
-                      <div className="w-10 rounded-full">
-                        <img
-                          alt="Tailwind CSS chat bubble component"
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTH6QVkrZDXhEwmlhhb-YaI6clS8QK23Wzb6Q&s"
-                        />
-                      </div>
-                    </div>
-                    <div className="chat-bubble">Yo im a placeholder</div>
-                  </div>
-                  <div className="chat chat-start">
-                    <div className="chat-image avatar">
-                      <div className="w-10 rounded-full">
-                        <img
-                          alt="Tailwind CSS chat bubble component"
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTH6QVkrZDXhEwmlhhb-YaI6clS8QK23Wzb6Q&s"
-                        />
-                      </div>
-                    </div>
-                    <div className="chat-bubble">Im rich!!!!</div>
-                  </div>
-                  <div className="chat chat-start">
-                    <div className="chat-image avatar">
-                      <div className="w-10 rounded-full">
-                        <img
-                          alt="Tailwind CSS chat bubble component"
-                          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTH6QVkrZDXhEwmlhhb-YaI6clS8QK23Wzb6Q&s"
-                        />
-                      </div>
-                    </div>
-                    <div className="chat-bubble">
-                      Testing testing blah blah blah
-                    </div>
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Message"
-                    className="input input-bordered w-full max-w-xs"
-                  />
-                </li>
+
               </ul>
             </div>
           </div>

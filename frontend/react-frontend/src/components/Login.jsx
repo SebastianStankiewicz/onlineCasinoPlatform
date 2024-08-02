@@ -34,7 +34,8 @@ const Login = () => {
   return (
     <>
       <div>
-        <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+        <div className="card bg-base-100 w-full max-w-sm shrink-0 ">
+        <h1 className="text-3xl justify-center items-center">Login</h1>
           <form className="card-body" onSubmit={handleLogin}>
             <div className="form-control">
               <label className="label">

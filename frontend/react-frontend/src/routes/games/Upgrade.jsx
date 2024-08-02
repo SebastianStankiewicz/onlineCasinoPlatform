@@ -20,6 +20,12 @@ function Upgrade() {
   const [balance, setBalance, authToken, setAuthToken, userName, setUserName] =
     useOutletContext();
 
+    useEffect(() => {
+      if (!authToken || !userName) {
+        document.getElementById("loginModal").showModal();
+      }
+    }, [authToken, userName]);
+
   useEffect(() => {
     const wagerValue = parseFloat(wager);
     const targetValue = parseFloat(target);
@@ -57,7 +63,7 @@ function Upgrade() {
           setRotationAngle(result.rotationAngle);
           setWheelColor("text-error");
         }
-        setBalance(result.balance)
+        setBalance(result.balance);
       }
     } catch (err) {
       console.log(err);
@@ -170,9 +176,13 @@ function Upgrade() {
           </div>
         </div>
       ) : (
-        <div>
-          <Login />
-        </div>
+        <>
+          <dialog id="loginModal" className="modal">
+            <div className="modal-box">
+              <Login/>
+            </div>
+          </dialog> 
+        </>
       )}
     </>
   );

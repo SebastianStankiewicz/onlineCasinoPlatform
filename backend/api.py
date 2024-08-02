@@ -66,7 +66,6 @@ def loginAPI():
         user = User()
         validLogin = user.login(userName, password)
         balance = user.getBalance()
-        print(user.userId)
 
         if validLogin:
             return jsonify({'success': True,
@@ -168,10 +167,12 @@ def createMinesGame():
             if user.updateUserObjectWithSeedInputs():
                 game = ProvablyFairGameMines(user.userId, user.serverSeed, user.clientSeed, user.nonce, betAmount)
                 game.generateNewGame(numberOfMines)
+                user.payForBet(game.betAmount)
                 if game.saveToGamesTable():
                     if user.incrementNonce():
                         return jsonify({'success': True,
-                                        'revealedTiles': [] })
+                                        'revealedTiles': [],
+                                         'balance': user.getBalance() })
         return jsonify({'success': False})
     
     except Exception as e:
@@ -224,11 +225,11 @@ def cashoutMinesGame():
 
         if verificationCheck:
             if user.getCurrentMinesGameData():
-                game = ProvablyFairGameMines(user.userId, user.serverSeed, user.clientSeed, user.nonce, None)
+                game = ProvablyFairGameMines(user.userId, user.serverSeed, user.clientSeed, user.nonce, user.betAmount)
                 game.setGameData(user.revealedTiles, user.mineLocaions, user.gameId)
                 if game.cashout():
                     return jsonify({'success': True,
-                                    'balance': 50})
+                                    'balance': user.getBalance()})
                 else:
                     return jsonify({'success': False})
         return jsonify({'success': False})

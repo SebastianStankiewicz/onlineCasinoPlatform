@@ -25,6 +25,7 @@ class ProvablyFairGameMines(ProvablyFairGame):
         self.revealedTiles = revealedTiles
         self.mineLocations = mineLocations
         self.gameId = gameId
+        self.calculateMultiplier()
 
     # 3% house edge
     def calculateMultiplier(self) -> None:
@@ -40,11 +41,6 @@ class ProvablyFairGameMines(ProvablyFairGame):
             self.multiplier = round(0.97 * (1/multi),2)
 
     def handleTileClick(self, tileLocation: int) -> None:
-        #TODO Need to convert data back to list i think?
-
-        self.revealedTiles = json.loads(self.revealedTiles)
-        self.mineLocations = json.loads(self.mineLocations)
-
         if tileLocation not in self.revealedTiles:
             if(tileLocation in self.mineLocations):
                 #Game over
@@ -71,8 +67,12 @@ class ProvablyFairGameMines(ProvablyFairGame):
         try:
             db = getDataBase()
             cursor = db.cursor()
-            print(self.gameId)
             cursor.execute("UPDATE mines SET gameInProgress = 0 WHERE uniqueGameId = ?", (self.gameId,))
+            db.commit()
+
+            db = getDataBase()
+            cursor = db.cursor()
+            cursor.execute('UPDATE wallet SET balance = balance + ? WHERE uniqueUserId = ?', (self.multiplier * self.betAmount, self.userId))
             db.commit()
             return True
 
@@ -96,20 +96,3 @@ class ProvablyFairGameMines(ProvablyFairGame):
         except Exception as e:
             print(str(e))
             return False
-
-
-"""userid = "test2"
-serverSeed = "seeeed"
-clientSeed = "I can be anythinig and set by the player"
-nonce = 0
-
-test = ProvablyFairGameMines(userid, serverSeed, clientSeed, nonce, 5)
-test.generateNewGame(20)
-
-test.calculateMultiplier()
-print(test.multiplier)
-
-test.handleTileClick(1)
-
-test.calculateMultiplier()
-print(test.multiplier)"""

@@ -1,6 +1,7 @@
 import sqlite3
 import os
 import requests
+import json
 
 from solathon import Client, PublicKey, Transaction, Keypair
 from solathon.core.instructions import transfer
@@ -137,24 +138,23 @@ class User:
                 self.serverSeed = response["serverSeed"]
                 self.clientSeed = response["clientSeed"]
                 self.nonce = response["nonce"]
-                print(self.serverSeed, self.clientSeed, self.nonce)
                 return True
             
     def getCurrentMinesGameData(self) -> bool:
         db = getDataBase()
         cursor = db.cursor()
         
-        cursor.execute('SELECT mineLocations, revealedTiles, multiplier, games.uniqueGameId as uniqueGameId FROM mines JOIN games ON mines.uniqueGameId = games.uniqueGameId WHERE games.uniqueUserId = ? AND mines.gameInProgress = 1', (str(self.userId),))
+        cursor.execute('SELECT mineLocations, revealedTiles, multiplier, games.uniqueGameId as uniqueGameId, games.betAmount as betAmount FROM mines JOIN games ON mines.uniqueGameId = games.uniqueGameId WHERE games.uniqueUserId = ? AND mines.gameInProgress = 1', (str(self.userId),))
         response = cursor.fetchone()
 
         if response is None:
             return False
         else:
-            self.mineLocaions = response["mineLocations"]
-            self.revealedTiles = response["revealedTiles"]
+            self.mineLocaions = json.loads(response["mineLocations"])
+            self.revealedTiles = json.loads(response["revealedTiles"])
             self.multiplier = response["multiplier"]
             self.gameId = response["uniqueGameId"]
- 
+            self.betAmount = response["betAmount"] 
             return True
         
     def getBalance(self) -> float:
