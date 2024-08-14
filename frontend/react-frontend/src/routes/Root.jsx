@@ -1,4 +1,4 @@
-import { FaWallet, FaBomb, FaArrowUp, FaDice } from "react-icons/fa";
+import { FaWallet, FaBomb, FaArrowUp, FaDice, FaHistory } from "react-icons/fa";
 import { PiHandWithdraw, PiHandDeposit } from "react-icons/pi";
 import { CgGames } from "react-icons/cg";
 import { GiBallPyramid } from "react-icons/gi";
@@ -88,7 +88,7 @@ const Root = () => {
 
                 <li>
                   <Link to={`gameHistory`}>
-                    GameHistory
+                    GameHistory <FaHistory />
                   </Link>
                 </li>
 

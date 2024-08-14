@@ -97,6 +97,17 @@ const GameHistory = () => {
       {authToken && userName ? (
         <>
           <div className="">
+          <div className="stats shadow">
+              <div className="stat place-items-center">
+                <div className="stat-title">Games Played</div>
+                <div className="stat-value">{totalGamesPlayed}</div>
+              </div>
+
+              <div className="stat place-items-center">
+                <div className="stat-title">Wagerd</div>
+                <div className="stat-value">$ {amountWagerd}</div>
+              </div>
+            </div>
             <div className="overflow-x-auto max-w-full">
               <div className="max-h-64 overflow-y-auto">
                 <table className="table table-md w-full">
@@ -130,19 +141,6 @@ const GameHistory = () => {
                 </table>
               </div>
             </div>
-
-            <div className="stats shadow">
-              <div className="stat place-items-center">
-                <div className="stat-title">Games Played</div>
-                <div className="stat-value">{totalGamesPlayed}</div>
-              </div>
-
-              <div className="stat place-items-center">
-                <div className="stat-title">Wagerd</div>
-                <div className="stat-value">$ {amountWagerd}</div>
-              </div>
-            </div>
-
             <div>
               <dialog id="provableFairModal" className="modal">
                 <div className="modal-box">
@@ -183,9 +181,7 @@ const GameHistory = () => {
                         </button>
                       )}
                       <p className="label-text-alt ">
-                        Game seed formed from concatenating the server seed,
-                        client seed and nonce. Revealing any server seed will generate a new secret Server
-                          Seed
+                      The game seed is formed by concatenating the server seed, client seed, and nonce. Revealing the server seed will generate a new secret server seed.
                       </p>
                     </div>
                   </div>
