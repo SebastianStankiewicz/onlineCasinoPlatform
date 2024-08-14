@@ -14,6 +14,7 @@ import GamePlinko from "./routes/games/Plinko/GamePlinko";
 
 import Withdraw from "./routes/wallet/Withdraw";
 import Deposit from "./routes/wallet/Deposit";
+import GameHistory from "./routes/games/GameHistory";
 
 
 
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
       {
         path: "withdraw",
         element: <Withdraw/>,
+      },
+      {
+        path: "gameHistory",
+        element: <GameHistory/>,
       }
 
 
