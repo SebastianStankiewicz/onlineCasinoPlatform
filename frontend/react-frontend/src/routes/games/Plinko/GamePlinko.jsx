@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PlinkoGameBoard from "./PlinkoGameBoard";
 import GameInputMenu from "./GameInputMenu";
 import { plinkoApiCall } from "../../../api";
@@ -11,13 +11,19 @@ const GamePlinko = () => {
   const [balance, setBalance, authToken, setAuthToken, userName, setUserName] =
     useOutletContext();
 
+  useEffect(() => {
+      if (!authToken || !userName) {
+        document.getElementById("loginModal").showModal();
+      }
+    }, [authToken, userName]);
+
   const placeBet = async (betAmount) => {
     try {
-      console.log(betAmount)
+      console.log(betAmount);
       const result = await plinkoApiCall(
         authToken,
         userName,
-       parseInt(betAmount)
+        parseInt(betAmount)
       );
       if (result.success == true) {
         //Drop the ball witht the starting positon applied.
@@ -46,7 +52,13 @@ const GamePlinko = () => {
           </div>
         </div>
       ) : (
-        <Login />
+        <>
+        <dialog id="loginModal" className="modal">
+          <div className="modal-box">
+            <Login />
+          </div>
+        </dialog>
+        </>
       )}
     </>
   );

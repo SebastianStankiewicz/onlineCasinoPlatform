@@ -17,8 +17,7 @@ function Upgrade() {
   const [wheelColor, setWheelColor] = useState("text-secondary");
   const [arrowYMovement, setArrowyMovement] = useState(20);
 
-  const [balance, setBalance, authToken, setAuthToken, userName, setUserName] =
-    useOutletContext();
+  const [balance, setBalance, authToken, setAuthToken, userName, setUserName] = useOutletContext();
 
     useEffect(() => {
       if (!authToken || !userName) {

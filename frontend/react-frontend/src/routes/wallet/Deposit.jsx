@@ -25,6 +25,12 @@ const Deposit = () => {
     fetchDepositAddress();
   }, []);
 
+  useEffect(() => {
+    if (!authToken || !userName) {
+      document.getElementById("loginModal").showModal();
+    }
+  }, [authToken, userName]);
+
   const checkForDepositFUNCTION = async () => {
     try {
       const response = await checkForDeposit(authToken, userName);
@@ -98,7 +104,13 @@ const Deposit = () => {
           </div>
         </div>
       ) : (
-        <Login />
+        <>
+        <dialog id="loginModal" className="modal">
+          <div className="modal-box">
+            <Login/>
+          </div>
+        </dialog> 
+      </>
       )}
     </>
   );

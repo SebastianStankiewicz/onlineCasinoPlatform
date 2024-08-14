@@ -1,6 +1,6 @@
 import React from "react";
 import { Grid } from "./Grid";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import GameInput from "./GameInput";
 import {
   minesCreateGameApiCall,
@@ -26,6 +26,12 @@ const Game = () => {
   const [balance, setBalance, authToken, setAuthToken, userName, setUserName] =
     useOutletContext();
 
+  useEffect(() => {
+    if (!authToken || !userName) {
+      document.getElementById("loginModal").showModal();
+    }
+  }, [authToken, userName]);
+
   const resetGameBoard = async () => {
     //Used to reset the state of the game board
     setMineTiles([]);
@@ -36,10 +42,7 @@ const Game = () => {
     // Refactor this snippet of code.
 
     try {
-      const result = await minesCashoutApiCall(
-        authToken,
-        userName
-      );
+      const result = await minesCashoutApiCall(authToken, userName);
       if (result.success == true) {
         // Assuming you need to check if result indicates success
         setGameInPlay(false);
@@ -163,7 +166,13 @@ const Game = () => {
           </div>
         </div>
       ) : (
-        <Login />
+        <>
+          <dialog id="loginModal" className="modal">
+            <div className="modal-box">
+              <Login />
+            </div>
+          </dialog>
+        </>
       )}
     </>
   );
