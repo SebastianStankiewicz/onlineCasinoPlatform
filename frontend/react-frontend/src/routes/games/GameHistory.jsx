@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
 import Login from "../../components/Login";
-import { getGameHistoryAPICALL } from "../../api";
+import { getClientSeedAndNonceFromGameIdAPI, getGameHistoryAPICALL, revealServerSeedAPI } from "../../api";
 
 const GameHistory = () => {
   const [serverSeedRevealed, setServerSeedRevealed] = useState(false);
@@ -12,6 +12,16 @@ const GameHistory = () => {
     useOutletContext();
 
   const [gameHistoryData, setGameHistoryData] = useState([]);
+  const [amountWagerd, setAmountWagerd] = useState(0);
+  const [totalGamesPlayed, setTotalGamesPlayed] = useState(0);
+
+  //used for the modal - Just for displaying data. 
+  const [clientSeed, setClientSeed] = useState("");
+  const [nonce, setNonce] = useState("");
+  const [hashedGameSeed, setHashedGameSeed] = useState(null);
+  const [serverSecretSeed, setServerSecretSeed] = useState("");
+
+  const[ selectedGameId, setSelectedGameId] = useState(null); //Remove need for this line
 
   useEffect(() => {
     const getGameHistory = async () => {
@@ -21,6 +31,8 @@ const GameHistory = () => {
           console.log(result);
           if (result.success == true) {
             setGameHistoryData(result.data);
+            setAmountWagerd(result.amountWagerd);
+            setTotalGamesPlayed(result.gamesPlayed);
           } else {
             console.log("Error fetching games table");
           }
@@ -39,6 +51,47 @@ const GameHistory = () => {
     }
   }, [authToken, userName]);
 
+
+  const getClientSeedAndNonceFromGameId = async (gameId) => {
+    try{
+      const result = await getClientSeedAndNonceFromGameIdAPI(
+        authToken,
+        userName,
+        gameId,
+      )
+
+      console.log(result)
+
+      if (result.success == true){
+        setClientSeed(result.clientSeed.toString());
+        setNonce(result.nonce.toString());
+        setHashedGameSeed(result.hashedGameSeed.toString());
+        setSelectedGameId(gameId);
+      } 
+    } catch(err){
+      console.log(err);
+    }
+  };
+
+  const revealServerSeed = async () => {
+    try{
+      const result = await revealServerSeedAPI(
+        authToken,
+        userName,
+        selectedGameId,
+      )
+
+      console.log(result)
+
+      if (result.success == true){
+        setServerSecretSeed(result.serverSeed.toString());
+       
+      } 
+    } catch(err){
+      console.log(err);
+    }
+  };
+
   return (
     <>
       {authToken && userName ? (
@@ -46,7 +99,7 @@ const GameHistory = () => {
           <div className="">
             <div className="overflow-x-auto max-w-full">
               <div className="max-h-64 overflow-y-auto">
-                <table className="table table-xs w-full">
+                <table className="table table-md w-full">
                   <thead className="sticky top-0">
                     <tr>
                       <th>Game ID</th>
@@ -66,11 +119,7 @@ const GameHistory = () => {
                         <td>
                           <button
                             className="btn"
-                            onClick={() =>
-                              document
-                                .getElementById("provableFairModal")
-                                .showModal()
-                            }
+                            onClick={() => (getClientSeedAndNonceFromGameId(game.gameId), document.getElementById("provableFairModal").showModal())}
                           >
                             View
                           </button>
@@ -85,12 +134,12 @@ const GameHistory = () => {
             <div className="stats shadow">
               <div className="stat place-items-center">
                 <div className="stat-title">Games Played</div>
-                <div className="stat-value">867</div>
+                <div className="stat-value">{totalGamesPlayed}</div>
               </div>
 
               <div className="stat place-items-center">
                 <div className="stat-title">Wagerd</div>
-                <div className="stat-value">$1,200</div>
+                <div className="stat-value">$ {amountWagerd}</div>
               </div>
             </div>
 
@@ -98,7 +147,6 @@ const GameHistory = () => {
               <dialog id="provableFairModal" className="modal">
                 <div className="modal-box">
                   <form method="dialog">
-                    {/* if there is a button in form, it will close the modal */}
                     <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
                       ✕
                     </button>
@@ -106,38 +154,38 @@ const GameHistory = () => {
 
                   <div className="flex flex-col font-bold text-lg">
                     <p>Hashed Game Seed: </p>
-                    <textarea className="textarea " disabled>
-                      a16eabdbd19bbeebda77cdc6117f504ffb09e430b7a6eff68a68115d5c02a9ec8714abbfbc8a78cd89514e55c17eee18053a4561831956182fa6e5b5685a918d
-                    </textarea>
+                    <p className="textarea overflow-x-auto " >
+                      {hashedGameSeed}
+                    </p>
                     <p>Client Seed: </p>
-                    <textarea className="textarea " disabled>
-                      f9c6c247dd4be4c121e59923b250d6
-                    </textarea>
+                    <p className="textarea " >
+                      {clientSeed}
+                    </p>
                     <p>Nonce:</p>
-                    <textarea className="textarea " disabled>
-                      995
-                    </textarea>
+                    <p className="textarea " >
+                      {nonce}
+                    </p>
                     <br></br>
                     <div>
                       {serverSeedRevealed ? (
                         <div className="flex flex-col font-bold text-lg">
                           <p>Server Seed</p>
-                          <textarea className="textarea " disabled>
-                            1d22253c22eb97a5abcdaeaa552922
-                          </textarea>
+                          <p className="textarea ">
+                            {serverSecretSeed}
+                          </p>
                         </div>
                       ) : (
                         <button
                           className="btn btn-primary"
-                          onClick={() => setServerSeedRevealed(true)}
+                          onClick={() => (revealServerSeed(), setServerSeedRevealed(true))}
                         >
-                          Reveal Server Seed (Will generate a new secret Server
-                          Seed)
+                          Reveal Server Seed 
                         </button>
                       )}
-                      <p className="text-sm font-light">
+                      <p className="label-text-alt ">
                         Game seed formed from concatenating the server seed,
-                        client seed and nonce.
+                        client seed and nonce. Revealing any server seed will generate a new secret Server
+                          Seed
                       </p>
                     </div>
                   </div>

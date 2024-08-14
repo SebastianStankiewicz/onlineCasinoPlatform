@@ -190,21 +190,20 @@ class User:
 
       
 
-    def revealServerSeed(self, userName: str, authenticationToken: str) -> str:
+    def revealServerSeed(self, userName: str, authenticationToken: str, gameId) -> str:
         """Reveal server seed and generate a new one"""
 
         db = getDataBase()
         cursor = db.cursor()
-        cursor.execute('SELECT serverSeed FROM users WHERE username = ? AND authenticationToken = ?', (userName, authenticationToken))
-        user = cursor.fetchone()
+        cursor.execute('SELECT serverSeed FROM games WHERE uniquegameId = ?', (gameId, ))
+        response = cursor.fetchone()
 
-        if user is None:
-            return "Invalid username or authentication token"
+        if response is None:
+            return "Invalid game id"
         
-        oldServerSeed = user['serverSeed']
+        oldServerSeed = response['serverSeed']
         newServerSeed = generateToken(15)
-
-        cursor.execute('UPDATE users SET serverSeed = ? WHERE userName = ? AND authenticationToken = ?', (newServerSeed, userName, authenticationToken))
+        cursor.execute('UPDATE users SET serverSeed = ?, nonce = 0 WHERE userName = ? AND authenticationToken = ?', (newServerSeed, userName, authenticationToken))
         db.commit()
         
         return oldServerSeed 
@@ -392,7 +391,21 @@ class User:
                 "payout": payout
             }
             history.append(data)
+        self.amountWagerd = 0
+        for game in history:
+            self.amountWagerd += game["betAmount"]
+
         return history
+    
+    def getClientSeedAndNonceFromGameId(self, gameId) -> dict:
+        db = getDataBase()
+        cursor = db.cursor()
+
+        cursor.execute('SELECT clientSeed, nonce, hashedGameSeed FROM games WHERE uniqueGameId = ?', (gameId,))
+        respone = cursor.fetchone()
+        data = [respone["clientSeed"], respone["nonce"], respone["hashedGameSeed"]]
+        return data
+
 
         
 

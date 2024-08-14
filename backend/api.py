@@ -24,17 +24,44 @@ def revealServerSeed():
     try:
         userName = request.json['userName']
         authenticationToken = request.json['authenticationToken']
-        
-        prevServerSeed = User().revealServerSeed(userName, authenticationToken)
+        #EDGE CONDITION FOR UNFINISHED MINES GAME YET TO BE IMPLEMENTED
+        gameId = request.json['gameId']
+
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticationToken)
+        if verificationCheck:
+            prevServerSeed = User().revealServerSeed(userName, authenticationToken, gameId)
+        else:
+            return jsonify({'success': False,
+                        'message': "invalid login"})
+
         return jsonify({'success': True,
-                        'prevServerSeed': str(prevServerSeed)})
+                        'serverSeed': str(prevServerSeed)})
 
     
     except Exception as e:
         return jsonify({'success': False,
                         'message': str(e)})
     
+@app.route('/user/getClientSeedAndNonceFromGameId', methods=["POST"])
+def getClientSeedAndNonceFromGameIdAPI():
+    try:
+        userName = request.json['userName']
+        authenticaionToken = request.json['authenticationToken']
+        gameId = request.json['gameId']
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticaionToken)
+        if verificationCheck:
+            data = user.getClientSeedAndNonceFromGameId(gameId)
+            return jsonify({'success': True,
+                    'clientSeed': data[0],
+                    'nonce': data[1],
+                    'hashedGameSeed': data[2]})
 
+    except Exception as e:
+        return jsonify({'success': False,
+                        'message': str(e)})
+    
 @app.route('/user/getGameHistory', methods=['POST'])
 def getGameHistoryAPI():
     try:
@@ -43,7 +70,11 @@ def getGameHistoryAPI():
         user = User()
         verificationCheck = user.authenticateUser(userName, authenticaionToken)
         if verificationCheck:
-            return jsonify({'success': True, 'data': user.getGameHistory()})
+            data = user.getGameHistory()
+            return jsonify({'success': True, 
+                            'data': data,
+                            'amountWagerd': user.amountWagerd,
+                            'gamesPlayed': len(data)})
 
     except Exception as e:
         return jsonify({'success': False,

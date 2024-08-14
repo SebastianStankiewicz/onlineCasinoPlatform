@@ -112,3 +112,24 @@ export const upgradeApiCall = async (authenticationToken, userName, betAmount, t
     });
     return response.json();
   };
+
+  export const getClientSeedAndNonceFromGameIdAPI = async (authenticationToken, userName, gameId) => {
+    const response = await fetch(apiUrl + '/user/getClientSeedAndNonceFromGameId', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authenticationToken, userName, gameId })
+    });
+    return response.json();
+  };
+
+
+  export const revealServerSeedAPI = async (authenticationToken, userName, gameId) => {
+    const response = await fetch(apiUrl + '/user/revealServerSeed', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authenticationToken, userName, gameId })
+    });
+    return response.json();
+  };
+
+
