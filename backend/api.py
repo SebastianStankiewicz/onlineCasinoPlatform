@@ -62,7 +62,8 @@ def createUserAPI():
 
         if userCreated and walletCreated:
             return jsonify({'success': True,
-                            'authenticationToken': user.authenticationToken})
+                            'authenticationToken': user.authenticationToken,
+                            'balance': 0})
         else:
             return jsonify({'success': False})
 
