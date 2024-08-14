@@ -4,49 +4,83 @@ import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
 import Login from "../../components/Login";
+import { getGameHistoryAPICALL } from "../../api";
 
 const GameHistory = () => {
   const [serverSeedRevealed, setServerSeedRevealed] = useState(false);
   const [balance, setBalance, authToken, setAuthToken, userName, setUserName] =
     useOutletContext();
 
+  const [gameHistoryData, setGameHistoryData] = useState([]);
+
+  useEffect(() => {
+    const getGameHistory = async () => {
+      if (authToken && userName) {
+        try {
+          const result = await getGameHistoryAPICALL(authToken, userName);
+          console.log(result);
+          if (result.success == true) {
+            setGameHistoryData(result.data);
+          } else {
+            console.log("Error fetching games table");
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
+
+    getGameHistory();
+  }, []);
+
   useEffect(() => {
     if (!authToken || !userName) {
       document.getElementById("loginModal").showModal();
     }
   }, [authToken, userName]);
+
   return (
     <>
       {authToken && userName ? (
         <>
           <div className="">
-            <table className="table table-xs">
-              <thead>
-                <tr>
-                  <th>Game ID</th>
-                  <th>Game Name </th>
-                  <th>Bet Amount</th>
-                  <th>Payout</th>
-                  <th>Provable Fairness</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>6c96245ebfac11c7c1a5</td>
-                  <td>Mines</td>
-                  <td>100.0</td>
-                  <td>75.0</td>
-                  <button
-                    className="btn"
-                    onClick={() =>
-                      document.getElementById("provableFairModal").showModal()
-                    }
-                  >
-                    View
-                  </button>
-                </tr>
-              </tbody>
-            </table>
+            <div className="overflow-x-auto max-w-full">
+              <div className="max-h-64 overflow-y-auto">
+                <table className="table table-xs w-full">
+                  <thead className="sticky top-0">
+                    <tr>
+                      <th>Game ID</th>
+                      <th>Game Name</th>
+                      <th>Bet Amount</th>
+                      <th>Payout</th>
+                      <th>Provable Fairness</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {gameHistoryData.map((game, index) => (
+                      <tr key={index}>
+                        <td>{game.gameId}</td>
+                        <td>{game.gameName}</td>
+                        <td>{game.betAmount}</td>
+                        <td>{game.payout}</td>
+                        <td>
+                          <button
+                            className="btn"
+                            onClick={() =>
+                              document
+                                .getElementById("provableFairModal")
+                                .showModal()
+                            }
+                          >
+                            View
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
             <div className="stats shadow">
               <div className="stat place-items-center">

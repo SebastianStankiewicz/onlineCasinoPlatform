@@ -86,6 +86,12 @@ const Root = () => {
                   </Link>
                 </li>
 
+                <li>
+                  <Link to={`gameHistory`}>
+                    GameHistory
+                  </Link>
+                </li>
+
 
               </ul>
             </div>

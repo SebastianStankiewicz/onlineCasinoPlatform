@@ -68,6 +68,15 @@ export const upgradeApiCall = async (authenticationToken, userName, betAmount, t
     return response.json();
   };
 
+  export const getGameHistoryAPICALL = async (authenticationToken, userName) => {
+    const response = await fetch(apiUrl + '/user/getGameHistory', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ authenticationToken, userName })
+    });
+    return response.json();
+  };
+
   export const withdrawAPICALL = async (authenticationToken, userName, withdrawAmount, withdrawPublicKey) => {
     const response = await fetch(apiUrl + '/user/wallet/withdraw', {
       method: 'POST',

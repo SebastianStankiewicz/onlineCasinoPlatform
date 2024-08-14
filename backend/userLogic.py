@@ -344,6 +344,56 @@ class User:
             return False
     
 
+    def getGameHistory(self) -> str:
+        db = getDataBase()
+        cursor = db.cursor()
+        history = []
+        """Mines are 1, plinko 2, upgrade 3"""
+
+        #Select mine games first
+        cursor.execute('SELECT multiplier, games.uniqueGameId as uniqueGameId, games.betAmount as betAmount FROM mines JOIN games ON mines.uniqueGameId = games.uniqueGameId WHERE games.uniqueUserId = ? AND mines.gameInProgress = 0', (str(self.userId),))
+        response = cursor.fetchall()
+        for game in response:
+            betAmount = float(game["betAmount"])
+            data = {
+                "gameId": game["uniqueGameId"],
+                "gameName": "Mines",
+                "betAmount": betAmount,
+                "payout": float(game["multiplier"]) * betAmount
+            }
+            history.append(data)
+
+        #Plinko next
+        cursor.execute('SELECT multiplier, games.uniqueGameId as uniqueGameId, games.betAmount as betAmount FROM plinko JOIN games ON plinko.uniqueGameId = games.uniqueGameId WHERE games.uniqueUserId = ?', (str(self.userId),))
+        response = cursor.fetchall()
+        for game in response:
+            betAmount = float(game["betAmount"])
+            data = {
+                "gameId": game["uniqueGameId"],
+                "gameName": "Plinko",
+                "betAmount": betAmount,
+                "payout": float(game["multiplier"]) * betAmount
+            }
+            history.append(data)
+        
+        #Finally upgrade
+        cursor.execute('SELECT target, success, games.uniqueGameId as uniqueGameId, games.betAmount as betAmount FROM upgrade JOIN games ON upgrade.uniqueGameId = games.uniqueGameId WHERE games.uniqueUserId = ?', (str(self.userId),))
+        response = cursor.fetchall()
+        for game in response:
+            betAmount = float(game["betAmount"])
+            if game["success"] == 0:
+                payout = 0.0
+            else:
+                payout = game["target"]
+            data = {
+                "gameId": game["uniqueGameId"],
+                "gameName": "Upgrade",
+                "betAmount": betAmount,
+                "payout": payout
+            }
+            history.append(data)
+        return history
+
         
 
 

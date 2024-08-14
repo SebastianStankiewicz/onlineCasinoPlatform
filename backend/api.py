@@ -35,6 +35,20 @@ def revealServerSeed():
                         'message': str(e)})
     
 
+@app.route('/user/getGameHistory', methods=['POST'])
+def getGameHistoryAPI():
+    try:
+        userName = request.json['userName']
+        authenticaionToken = request.json['authenticationToken']
+        user = User()
+        verificationCheck = user.authenticateUser(userName, authenticaionToken)
+        if verificationCheck:
+            return jsonify({'success': True, 'data': user.getGameHistory()})
+
+    except Exception as e:
+        return jsonify({'success': False,
+                        'message': str(e)})
+
 @app.route('/user/createUser', methods=["POST"])
 def createUserAPI():
     try:
