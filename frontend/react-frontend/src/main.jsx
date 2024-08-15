@@ -28,6 +28,7 @@ const router = createBrowserRouter([
     element: <Root />,
     errorElement: <ErrorPage />,
     children: [
+      { index: true, element: <GamePlinko /> },
       {
         path: "plinko",
         element: <GamePlinko />,

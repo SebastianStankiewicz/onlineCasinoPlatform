@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 
 import Login from "../../components/Login";
-import { getClientSeedAndNonceFromGameIdAPI, getGameHistoryAPICALL, revealServerSeedAPI } from "../../api";
+import {
+  getClientSeedAndNonceFromGameIdAPI,
+  getGameHistoryAPICALL,
+  revealServerSeedAPI,
+} from "../../api";
 
 const GameHistory = () => {
   const [serverSeedRevealed, setServerSeedRevealed] = useState(false);
@@ -15,13 +19,13 @@ const GameHistory = () => {
   const [amountWagerd, setAmountWagerd] = useState(0);
   const [totalGamesPlayed, setTotalGamesPlayed] = useState(0);
 
-  //used for the modal - Just for displaying data. 
+  //used for the modal - Just for displaying data.
   const [clientSeed, setClientSeed] = useState("");
   const [nonce, setNonce] = useState("");
   const [hashedGameSeed, setHashedGameSeed] = useState(null);
   const [serverSecretSeed, setServerSecretSeed] = useState("");
 
-  const[ selectedGameId, setSelectedGameId] = useState(null); //Remove need for this line
+  const [selectedGameId, setSelectedGameId] = useState(null); //Remove need for this line
 
   useEffect(() => {
     const getGameHistory = async () => {
@@ -51,43 +55,41 @@ const GameHistory = () => {
     }
   }, [authToken, userName]);
 
-
   const getClientSeedAndNonceFromGameId = async (gameId) => {
-    try{
+    try {
       const result = await getClientSeedAndNonceFromGameIdAPI(
         authToken,
         userName,
-        gameId,
-      )
+        gameId
+      );
 
-      console.log(result)
+      console.log(result);
 
-      if (result.success == true){
+      if (result.success == true) {
         setClientSeed(result.clientSeed.toString());
         setNonce(result.nonce.toString());
         setHashedGameSeed(result.hashedGameSeed.toString());
         setSelectedGameId(gameId);
-      } 
-    } catch(err){
+      }
+    } catch (err) {
       console.log(err);
     }
   };
 
   const revealServerSeed = async () => {
-    try{
+    try {
       const result = await revealServerSeedAPI(
         authToken,
         userName,
-        selectedGameId,
-      )
+        selectedGameId
+      );
 
-      console.log(result)
+      console.log(result);
 
-      if (result.success == true){
+      if (result.success == true) {
         setServerSecretSeed(result.serverSeed.toString());
-       
-      } 
-    } catch(err){
+      }
+    } catch (err) {
       console.log(err);
     }
   };
@@ -97,7 +99,7 @@ const GameHistory = () => {
       {authToken && userName ? (
         <>
           <div className="">
-          <div className="stats shadow">
+            <div className="stats shadow">
               <div className="stat place-items-center">
                 <div className="stat-title">Games Played</div>
                 <div className="stat-value">{totalGamesPlayed}</div>
@@ -106,6 +108,11 @@ const GameHistory = () => {
               <div className="stat place-items-center">
                 <div className="stat-title">Wagerd</div>
                 <div className="stat-value">$ {amountWagerd}</div>
+              </div>
+
+              <div className="stat place-items-center">
+              <div className="stat-title">Balance</div>
+              <div className="stat-value text-secondary">${balance}</div>
               </div>
             </div>
             <div className="overflow-x-auto max-w-full">
@@ -130,7 +137,12 @@ const GameHistory = () => {
                         <td>
                           <button
                             className="btn"
-                            onClick={() => (getClientSeedAndNonceFromGameId(game.gameId), document.getElementById("provableFairModal").showModal())}
+                            onClick={() => (
+                              getClientSeedAndNonceFromGameId(game.gameId),
+                              document
+                                .getElementById("provableFairModal")
+                                .showModal()
+                            )}
                           >
                             View
                           </button>
@@ -152,36 +164,34 @@ const GameHistory = () => {
 
                   <div className="flex flex-col font-bold text-lg">
                     <p>Hashed Game Seed: </p>
-                    <p className="textarea overflow-x-auto " >
+                    <p className="textarea overflow-x-auto ">
                       {hashedGameSeed}
                     </p>
                     <p>Client Seed: </p>
-                    <p className="textarea " >
-                      {clientSeed}
-                    </p>
+                    <p className="textarea ">{clientSeed}</p>
                     <p>Nonce:</p>
-                    <p className="textarea " >
-                      {nonce}
-                    </p>
+                    <p className="textarea ">{nonce}</p>
                     <br></br>
                     <div>
                       {serverSeedRevealed ? (
                         <div className="flex flex-col font-bold text-lg">
                           <p>Server Seed</p>
-                          <p className="textarea ">
-                            {serverSecretSeed}
-                          </p>
+                          <p className="textarea ">{serverSecretSeed}</p>
                         </div>
                       ) : (
                         <button
                           className="btn btn-primary"
-                          onClick={() => (revealServerSeed(), setServerSeedRevealed(true))}
+                          onClick={() => (
+                            revealServerSeed(), setServerSeedRevealed(true)
+                          )}
                         >
-                          Reveal Server Seed 
+                          Reveal Server Seed
                         </button>
                       )}
                       <p className="label-text-alt ">
-                      The game seed is formed by concatenating the server seed, client seed, and nonce. Revealing the server seed will generate a new secret server seed.
+                        The game seed is formed by concatenating the server
+                        seed, client seed, and nonce. Revealing the server seed
+                        will generate a new secret server seed.
                       </p>
                     </div>
                   </div>
